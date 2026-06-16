@@ -340,7 +340,7 @@ body::after {
   cursor: text; outline: none;
   border-radius: 4px; padding: 2px 4px; margin: -2px -4px;
 }
-.gm-text[contenteditable="true"] { outline: 1px solid rgba(255,255,255,0.18); background: rgba(0,0,0,0.28); }
+.gm-text[contenteditable="true"] { outline: 1px solid rgba(255,255,255,0.18); background: rgba(0,0,0,0.28); font-size: 16px; }
 .gm-queue-btn {
   border: 0; background: transparent;
   color: var(--text-tertiary); font-size: 14px; cursor: pointer;
@@ -376,7 +376,7 @@ body::after {
   flex: 1; min-width: 0; padding: 11px 14px;
   border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;
   background: rgba(0,0,0,0.28); color: var(--text-primary);
-  font-family: inherit; font-size: 14px; outline: none;
+  font-family: inherit; font-size: 16px; outline: none;
   transition: border-color 0.2s, background 0.2s;
 }
 .gm-input::placeholder { color: var(--text-tertiary); }
@@ -433,26 +433,123 @@ body::after {
 .rt-row-done { opacity: 0.35; }
 .rt-row-done .rt-text { text-decoration: line-through; text-decoration-color: rgba(255,255,255,0.35); }
 .rt-text { flex: 1; font-size: 14px; color: var(--text-primary); }
-.rt-del {
-  border: 0; background: transparent;
-  color: var(--text-tertiary); font-size: 18px;
-  cursor: pointer; padding: 0 4px;
-  opacity: 0; flex-shrink: 0;
-  transition: opacity 0.2s, color 0.2s;
-}
-.rt-row:hover .rt-del { opacity: 1; }
-.rt-del:hover { color: var(--danger); }
 .rt-empty { text-align: center; font-size: 12px; font-style: italic; color: var(--text-tertiary); padding: 8px 0 4px; }
-.rt-add-wrap { display: flex; gap: 8px; margin-top: 10px; }
-.rt-add-wrap .gm-input { padding: 9px 12px; font-size: 13px; }
-.rt-add-wrap .gm-add   { padding: 9px 16px; font-size: 12px; }
+
+/* ===== Section title row (title + icon button) ===== */
+.section-title-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.section-title-row .section-title { flex: 1; margin-bottom: 0; }
+.rt-icon-btn {
+  width: 34px; height: 34px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, border-color 0.18s;
+  -webkit-tap-highlight-color: transparent;
+}
+.rt-icon-btn:hover { background: rgba(255,255,255,0.08); color: var(--text-primary); }
+
+/* ===== Routine edit modal ===== */
+.rt-modal-bg {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  z-index: 100; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.rt-modal-bg.show { display: flex; }
+.rt-modal {
+  width: 100%; max-width: 480px;
+  background: #111113;
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 16px;
+  padding: 22px;
+  max-height: 88vh;
+  overflow-y: auto;
+}
+.rt-modal h3 { margin: 0 0 16px; font-size: 17px; font-weight: 700; color: var(--text-primary); }
+.rt-day-seg {
+  display: flex; gap: 4px; flex-wrap: wrap;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px; padding: 3px;
+  margin-bottom: 14px;
+}
+.rt-day-seg button {
+  flex: 1; min-width: 38px;
+  padding: 8px 4px; border: none; background: transparent;
+  color: var(--text-tertiary); border-radius: 7px;
+  font-family: inherit; font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: background 0.15s, color 0.15s;
+}
+.rt-day-seg button.active {
+  background: linear-gradient(180deg, #FFFFFF 0%, #E8E5DD 100%);
+  color: #0A0A0B;
+}
+.rt-owner-note { font-size: 12px; color: var(--text-tertiary); margin-bottom: 16px; line-height: 1.5; }
+.rt-owner-note strong { color: var(--text-secondary); }
+.rt-edit-section { margin-bottom: 20px; }
+.rt-edit-section h4 {
+  margin: 0 0 8px; font-size: 11px; font-weight: 800;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+.rt-share-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.rt-share-pill {
+  padding: 7px 13px; border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.04);
+  color: var(--text-tertiary);
+  font-family: inherit; font-size: 12px; font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.rt-share-pill.active {
+  background: rgba(107,227,164,0.14);
+  color: var(--success);
+  border-color: rgba(107,227,164,0.4);
+}
+.rt-edit-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+.rt-edit-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px;
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px;
+}
+.rt-edit-row input {
+  flex: 1; min-width: 0;
+  background: transparent; border: none; outline: none;
+  color: var(--text-primary); font-family: inherit; font-size: 16px;
+  padding: 4px 0;
+}
+.rt-edit-row .rt-mini-del {
+  background: transparent; border: none; color: var(--text-tertiary);
+  font-size: 16px; cursor: pointer; padding: 4px 8px; line-height: 1;
+}
+.rt-edit-row .rt-mini-del:hover { color: var(--danger); }
+.rt-add-row-btn {
+  width: 100%; padding: 10px;
+  background: rgba(255,255,255,0.025);
+  border: 1px dashed rgba(255,255,255,0.14);
+  color: var(--text-secondary);
+  border-radius: 8px; cursor: pointer;
+  font-family: inherit; font-size: 12px; font-weight: 600;
+  transition: background 0.15s, color 0.15s;
+}
+.rt-add-row-btn:hover { background: rgba(255,255,255,0.05); color: var(--text-primary); }
+.rt-modal-actions { display: flex; gap: 8px; margin-top: 8px; }
+.rt-modal-actions button { flex: 1; }
 
 @media (max-width: 480px) {
   body { padding: max(20px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) max(50px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left)); }
   .gm-card      { padding: 16px; }
   .gm-progress-num { font-size: 36px; }
   .routine-card { padding: 16px; }
-  .rt-del       { opacity: 0.45; }
+  .rt-modal-bg { padding: 16px; }
+  .rt-modal { padding: 18px; max-height: 86vh; }
 }
 </style>
 </head>
@@ -501,37 +598,30 @@ body::after {
 
   <!-- ROUTINE SECTION -->
   <div class="section">
-    <div class="section-title">Daily Routine</div>
+    <div class="section-title-row">
+      <div class="section-title">Daily Routine</div>
+      <button type="button" class="rt-icon-btn" id="routineSettingsBtn" title="Edit Routine" aria-label="Edit Routine">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+    </div>
     <div class="routine-card">
 
       <div class="routine-period">
         <div class="routine-period-header">☀️ Morning</div>
         <ul class="rt-list" id="routineListMorning"></ul>
-        <div class="rt-empty" id="routineEmptyMorning">No morning tasks yet — add one below</div>
-        <div class="rt-add-wrap">
-          <input class="gm-input" id="routineInputMorning" placeholder="Add morning task…" autocomplete="off">
-          <button type="button" class="gm-add" id="routineAddMorning">+ Add</button>
-        </div>
+        <div class="rt-empty" id="routineEmptyMorning">No morning tasks yet — tap ⚙ above to add some</div>
       </div>
 
       <div class="routine-period">
         <div class="routine-period-header">🌤️ Noon</div>
         <ul class="rt-list" id="routineListNoon"></ul>
-        <div class="rt-empty" id="routineEmptyNoon">No noon tasks yet — add one below</div>
-        <div class="rt-add-wrap">
-          <input class="gm-input" id="routineInputNoon" placeholder="Add noon task…" autocomplete="off">
-          <button type="button" class="gm-add" id="routineAddNoon">+ Add</button>
-        </div>
+        <div class="rt-empty" id="routineEmptyNoon">No noon tasks yet — tap ⚙ above to add some</div>
       </div>
 
       <div class="routine-period">
         <div class="routine-period-header">🌙 Night</div>
         <ul class="rt-list" id="routineListNight"></ul>
-        <div class="rt-empty" id="routineEmptyNight">No night tasks yet — add one below</div>
-        <div class="rt-add-wrap">
-          <input class="gm-input" id="routineInputNight" placeholder="Add night task…" autocomplete="off">
-          <button type="button" class="gm-add" id="routineAddNight">+ Add</button>
-        </div>
+        <div class="rt-empty" id="routineEmptyNight">No night tasks yet — tap ⚙ above to add some</div>
       </div>
 
     </div>
@@ -568,6 +658,41 @@ body::after {
     </div>
   </div>
 
+</div>
+
+<!-- ROUTINE EDIT MODAL -->
+<div class="rt-modal-bg" id="routineModalBg">
+  <div class="rt-modal">
+    <h3>Edit Daily Routine</h3>
+
+    <div class="rt-day-seg" id="routineDaySeg"></div>
+    <div class="rt-owner-note" id="routineOwnerNote"></div>
+
+    <div class="rt-edit-section">
+      <h4>Share this routine with</h4>
+      <div class="rt-share-pills" id="routineSharePills"></div>
+    </div>
+
+    <div class="rt-edit-section">
+      <h4>☀️ Morning</h4>
+      <div class="rt-edit-list" id="routineEditListMorning"></div>
+      <button type="button" class="rt-add-row-btn" data-period="morning">+ Add task</button>
+    </div>
+    <div class="rt-edit-section">
+      <h4>🌤️ Noon</h4>
+      <div class="rt-edit-list" id="routineEditListNoon"></div>
+      <button type="button" class="rt-add-row-btn" data-period="noon">+ Add task</button>
+    </div>
+    <div class="rt-edit-section">
+      <h4>🌙 Night</h4>
+      <div class="rt-edit-list" id="routineEditListNight"></div>
+      <button type="button" class="rt-add-row-btn" data-period="night">+ Add task</button>
+    </div>
+
+    <div class="rt-modal-actions">
+      <button type="button" class="gm-add" id="routineModalDone">Done</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -696,18 +821,47 @@ body::after {
 
   // ---------- routine ----------
   const PERIODS = ['morning', 'noon', 'night'];
+  const DAY_KEYS   = ['sun','mon','tue','wed','thu','fri','sat'];
+  const DAY_LABELS = { sun:'Sun', mon:'Mon', tue:'Tue', wed:'Wed', thu:'Thu', fri:'Fri', sat:'Sat' };
+  const DAY_FULL   = { sun:'Sunday', mon:'Monday', tue:'Tuesday', wed:'Wednesday', thu:'Thursday', fri:'Friday', sat:'Saturday' };
 
-  function getRoutine(period)       { const d = storeGet('routine:' + period); return Array.isArray(d) ? d : []; }
-  function setRoutine(period, list) { storeSet('routine:' + period, list); }
+  // one-time cleanup of the old universal routine keys (pre-day-specific version)
+  ['routine:morning', 'routine:noon', 'routine:night'].forEach(storeDelete);
+
+  function getTodayDayKey() {
+    const p = getActiveDateString().split('-').map(Number);
+    return DAY_KEYS[new Date(p[0], p[1]-1, p[2]).getDay()];
+  }
+
+  function getDayLinks() {
+    const links = storeGet('routine:day_links');
+    const out = {};
+    DAY_KEYS.forEach(d => { out[d] = (links && links[d]) ? links[d] : d; });
+    return out;
+  }
+  function setDayLinks(links) { storeSet('routine:day_links', links); }
+
+  function resolveDayOwner(day, links) {
+    links = links || getDayLinks();
+    let owner = links[day] || day;
+    const seen = new Set();
+    while (links[owner] && links[owner] !== owner && !seen.has(owner)) { seen.add(owner); owner = links[owner]; }
+    return owner;
+  }
+
+  function getRoutine(ownerDay, period)       { const d = storeGet('routine:' + ownerDay + ':' + period); return Array.isArray(d) ? d : []; }
+  function setRoutine(ownerDay, period, list) { storeSet('routine:' + ownerDay + ':' + period, list); }
   function isRoutineDoneToday(task) { return task.doneDate === getActiveDateString(); }
 
   function getRoutineStats() {
+    const owner = resolveDayOwner(getTodayDayKey());
     let total = 0, done = 0;
-    PERIODS.forEach(p => { const t = getRoutine(p); total += t.length; done += t.filter(x => isRoutineDoneToday(x)).length; });
+    PERIODS.forEach(p => { const t = getRoutine(owner, p); total += t.length; done += t.filter(x => isRoutineDoneToday(x)).length; });
     return { done, total, pct: total === 0 ? 0 : Math.round(done / total * 100) };
   }
 
-  function buildRoutineRow(task, period) {
+  // ---- main dashboard view: check-off only ----
+  function buildRoutineRowReadonly(task, ownerDay, period) {
     const li = document.createElement('li');
     li.className = 'rt-row' + (isRoutineDoneToday(task) ? ' rt-row-done' : '');
     li.dataset.id = task.id;
@@ -715,11 +869,11 @@ body::after {
     const cb = document.createElement('input');
     cb.type = 'checkbox'; cb.className = 'gm-check'; cb.checked = isRoutineDoneToday(task);
     cb.addEventListener('change', () => {
-      const list = getRoutine(period);
+      const list = getRoutine(ownerDay, period);
       const t = list.find(x => x.id === task.id);
       if (!t) return;
       t.doneDate = cb.checked ? getActiveDateString() : null;
-      setRoutine(period, list);
+      setRoutine(ownerDay, period, list);
       renderRoutinePeriod(period);
       updateDayRingRoutine();
     });
@@ -729,13 +883,6 @@ body::after {
     text.className = 'rt-text'; text.textContent = task.text;
     li.appendChild(text);
 
-    const del = document.createElement('button');
-    del.type = 'button'; del.className = 'rt-del'; del.setAttribute('aria-label', 'Delete'); del.textContent = '×';
-    del.addEventListener('click', () => {
-      setRoutine(period, getRoutine(period).filter(x => x.id !== task.id));
-      renderRoutinePeriod(period); updateDayRingRoutine();
-    });
-    li.appendChild(del);
     return li;
   }
 
@@ -743,28 +890,137 @@ body::after {
     const cap    = period.charAt(0).toUpperCase() + period.slice(1);
     const listEl = document.getElementById('routineList'  + cap);
     const emptyEl= document.getElementById('routineEmpty' + cap);
-    const tasks  = getRoutine(period);
+    const owner  = resolveDayOwner(getTodayDayKey());
+    const tasks  = getRoutine(owner, period);
     listEl.innerHTML = '';
     const undone = tasks.filter(t => !isRoutineDoneToday(t));
     const done   = tasks.filter(t =>  isRoutineDoneToday(t));
-    [...undone, ...done].forEach(t => listEl.appendChild(buildRoutineRow(t, period)));
+    [...undone, ...done].forEach(t => listEl.appendChild(buildRoutineRowReadonly(t, owner, period)));
     emptyEl.style.display = tasks.length === 0 ? 'block' : 'none';
   }
 
   function renderAllRoutine() { PERIODS.forEach(p => renderRoutinePeriod(p)); }
 
-  PERIODS.forEach(period => {
-    const cap   = period.charAt(0).toUpperCase() + period.slice(1);
-    const input = document.getElementById('routineInput' + cap);
-    const btn   = document.getElementById('routineAdd'   + cap);
-    btn.addEventListener('click', () => {
-      const text = input.value.trim(); if (!text) return;
-      const list = getRoutine(period);
-      list.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2,6), text, doneDate: null });
-      setRoutine(period, list); input.value = '';
-      renderRoutinePeriod(period); updateDayRingRoutine();
+  // ---- edit modal ----
+  let editingDay = null;
+
+  function renderDaySeg() {
+    const seg = document.getElementById('routineDaySeg');
+    seg.innerHTML = '';
+    DAY_KEYS.forEach(d => {
+      const btn = document.createElement('button');
+      btn.type = 'button'; btn.textContent = DAY_LABELS[d];
+      btn.className = d === editingDay ? 'active' : '';
+      btn.addEventListener('click', () => { editingDay = d; renderModalAll(); });
+      seg.appendChild(btn);
     });
-    input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); btn.click(); } });
+  }
+
+  function renderOwnerNote() {
+    const note  = document.getElementById('routineOwnerNote');
+    const links = getDayLinks();
+    const owner = resolveDayOwner(editingDay, links);
+    const sharedWith = DAY_KEYS.filter(d => d !== editingDay && resolveDayOwner(d, links) === owner);
+    if (owner === editingDay) {
+      note.innerHTML = sharedWith.length > 0
+        ? 'Editing <strong>' + DAY_FULL[editingDay] + '</strong> — also used by ' + sharedWith.map(d => DAY_FULL[d]).join(', ') + '.'
+        : 'Editing <strong>' + DAY_FULL[editingDay] + '</strong> — independent routine.';
+    } else {
+      note.innerHTML = 'Editing <strong>' + DAY_FULL[owner] + '</strong>\'s routine (shared with ' + sharedWith.map(d => DAY_FULL[d]).join(', ') + ').';
+    }
+  }
+
+  function renderSharePills() {
+    const wrap  = document.getElementById('routineSharePills');
+    wrap.innerHTML = '';
+    const links = getDayLinks();
+    const owner = resolveDayOwner(editingDay, links);
+    DAY_KEYS.filter(d => d !== editingDay).forEach(d => {
+      const isLinked = resolveDayOwner(d, links) === owner;
+      const pill = document.createElement('button');
+      pill.type = 'button'; pill.className = 'rt-share-pill' + (isLinked ? ' active' : '');
+      pill.textContent = DAY_LABELS[d];
+      pill.addEventListener('click', () => toggleShare(d));
+      wrap.appendChild(pill);
+    });
+  }
+
+  function toggleShare(day) {
+    const links = getDayLinks();
+    const owner = resolveDayOwner(editingDay, links);
+    const isLinked = resolveDayOwner(day, links) === owner;
+    if (isLinked) {
+      // unlink: snapshot the shared tasks into this day's own storage so it becomes independent
+      PERIODS.forEach(p => {
+        const tasks = getRoutine(owner, p).map(t => ({ id: t.id, text: t.text, doneDate: t.doneDate }));
+        setRoutine(day, p, tasks);
+      });
+      links[day] = day;
+    } else {
+      links[day] = owner;
+    }
+    setDayLinks(links);
+    renderModalAll(); renderAllRoutine(); updateDayRingRoutine();
+  }
+
+  function renderEditLists() {
+    const owner = resolveDayOwner(editingDay);
+    PERIODS.forEach(period => {
+      const cap    = period.charAt(0).toUpperCase() + period.slice(1);
+      const listEl = document.getElementById('routineEditList' + cap);
+      const tasks  = getRoutine(owner, period);
+      listEl.innerHTML = '';
+      tasks.forEach((task, i) => {
+        const row = document.createElement('div');
+        row.className = 'rt-edit-row';
+
+        const input = document.createElement('input');
+        input.type = 'text'; input.value = task.text;
+        input.addEventListener('change', () => {
+          const list = getRoutine(owner, period);
+          if (list[i]) { list[i].text = input.value.trim() || list[i].text; setRoutine(owner, period, list); }
+          renderAllRoutine();
+        });
+        row.appendChild(input);
+
+        const del = document.createElement('button');
+        del.type = 'button'; del.className = 'rt-mini-del'; del.textContent = '×'; del.setAttribute('aria-label', 'Delete');
+        del.addEventListener('click', () => {
+          const list = getRoutine(owner, period);
+          list.splice(i, 1);
+          setRoutine(owner, period, list);
+          renderEditLists(); renderAllRoutine(); updateDayRingRoutine();
+        });
+        row.appendChild(del);
+
+        listEl.appendChild(row);
+      });
+    });
+  }
+
+  function renderModalAll() { renderDaySeg(); renderOwnerNote(); renderSharePills(); renderEditLists(); }
+
+  document.querySelectorAll('.rt-add-row-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const period = btn.dataset.period;
+      const text = (prompt('New ' + period + ' task:') || '').trim();
+      if (!text) return;
+      const owner = resolveDayOwner(editingDay);
+      const list = getRoutine(owner, period);
+      list.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2,6), text, doneDate: null });
+      setRoutine(owner, period, list);
+      renderEditLists(); renderAllRoutine(); updateDayRingRoutine();
+    });
+  });
+
+  document.getElementById('routineSettingsBtn').addEventListener('click', () => {
+    editingDay = getTodayDayKey();
+    renderModalAll();
+    document.getElementById('routineModalBg').classList.add('show');
+  });
+  document.getElementById('routineModalDone').addEventListener('click', () => {
+    document.getElementById('routineModalBg').classList.remove('show');
+    renderAllRoutine(); updateDayRingRoutine();
   });
 
   // ---------- day ring ----------
