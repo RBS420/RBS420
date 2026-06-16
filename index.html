@@ -89,75 +89,36 @@ body::after {
   .dash-date  { font-size: 13px; }
 }
 
-/* ===== Goal Ticker ===== */
-.ticker-row { display: grid; grid-template-columns: 1fr; gap: 4px; margin-bottom: 18px; }
-.goal-ticker {
-  position: relative; overflow: hidden;
-  display: flex; align-items: center; gap: 10px;
-  padding: 7px 12px;
-  border-radius: 12px;
-  background:
-    linear-gradient(180deg, rgba(0,0,0,0.42) 0%, rgba(0,0,0,0.30) 100%),
-    repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0, rgba(255,255,255,0.025) 1px, transparent 1px, transparent 3px);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
-}
-.goal-ticker::after {
-  content: '';
-  position: absolute; top: 0; bottom: 0; width: 30%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
-  pointer-events: none;
-  animation: ticker-sweep 8s linear infinite;
-}
-@keyframes ticker-sweep { 0% { left: -40%; } 100% { left: 110%; } }
-.goal-ticker-led { display: inline-flex; align-items: center; }
-.goal-ticker-led-dot {
-  width: 7px; height: 7px; border-radius: 50%;
-  background: #6BE3A4;
-  box-shadow: 0 0 8px rgba(107,227,164,0.7);
-  animation: led-pulse 1.6s ease-in-out infinite;
-}
-@keyframes led-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50%       { opacity: 0.45; transform: scale(0.85); }
-}
-.goal-ticker-label {
-  font-family: var(--font-mono);
-  font-size: 9.5px; font-weight: 800;
-  letter-spacing: 0.18em;
-  color: var(--text-tertiary);
-}
-.goal-ticker-stage { position: relative; overflow: hidden; flex: 1; height: 22px; }
-.goal-ticker-row {
-  position: absolute; inset: 0;
-  display: flex; align-items: center; gap: 8px;
-  font-family: var(--font-mono);
-  font-size: 12.5px; font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  color: var(--text-primary);
-  white-space: nowrap;
-  opacity: 1;
-  transition: opacity 0.22s ease;
-}
-.goal-ticker-row.is-fading { opacity: 0; }
-.goal-ticker-status { display: inline-flex; justify-content: center; width: 18px; color: var(--text-tertiary); }
-.goal-ticker-status[data-status="done"]    { color: var(--success); }
-.goal-ticker-status[data-status="pending"] { color: var(--text-tertiary); }
-.goal-ticker-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.goal-ticker-meta {
-  font-family: var(--font-mono);
-  font-size: 11px; font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.04em;
-  color: var(--text-secondary);
-  padding: 3px 8px;
-  border-radius: 999px;
+/* ===== Routine Streak Strip ===== */
+.streak-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 12px 14px; margin-bottom: 18px;
+  border-radius: 14px;
   background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(24px) saturate(1.2);
+  -webkit-backdrop-filter: blur(24px) saturate(1.2);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.45);
 }
+.streak-days { display: flex; gap: 7px; flex: 1; justify-content: space-between; }
+.streak-day-cell {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 3px; flex: 1; height: 42px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  transition: background 0.25s, border-color 0.25s;
+}
+.streak-day-cell.is-today { border-color: rgba(255,255,255,0.22); }
+.streak-day-cell.is-fire  { background: rgba(242,192,99,0.10); border-color: rgba(242,192,99,0.32); }
+.streak-day-fire   { font-size: 14px; line-height: 1; filter: drop-shadow(0 0 5px rgba(242,192,99,0.6)); }
+.streak-day-letter { font-family: var(--font-mono); font-size: 10px; font-weight: 700; color: var(--text-tertiary); }
+.streak-day-cell.is-fire  .streak-day-letter { color: #FFE2A8; }
+.streak-day-cell.is-today .streak-day-letter { color: var(--text-primary); }
 @media (max-width: 480px) {
-  .goal-ticker { padding: 9px 12px; }
-  .goal-ticker-label { font-size: 9px; letter-spacing: 0.14em; }
-  .goal-ticker-row   { font-size: 12px; }
-  .goal-ticker-meta  { font-size: 10px; padding: 2px 7px; }
+  .streak-row { padding: 10px 12px; gap: 10px; }
+  .streak-day-cell { height: 38px; }
+  .streak-day-letter { font-size: 9px; }
+  .streak-day-fire { font-size: 12px; }
 }
 
 /* ===== Day Ring ===== */
@@ -558,17 +519,12 @@ body::after {
 
   <h1 class="dash-title">My Dashboard <span class="dash-date" id="dashDate"></span></h1>
 
-  <div class="ticker-row">
-    <div class="goal-ticker" id="goalTicker" aria-live="polite" aria-atomic="true">
-      <div class="goal-ticker-led"><span class="goal-ticker-led-dot"></span></div>
-      <div class="goal-ticker-label">GOALS</div>
-      <div class="goal-ticker-stage" id="goalTickerStage">
-        <div class="goal-ticker-row">
-          <span class="goal-ticker-status" data-status="">—</span>
-          <span class="goal-ticker-text">Loading…</span>
-        </div>
-      </div>
-      <div class="goal-ticker-meta" id="goalTickerMeta">0/0</div>
+  <div class="streak-row">
+    <div class="streak-days" id="streakDays"></div>
+    <div class="gm-streak" id="routineStreak">
+      <span class="gm-streak-icon">🔥</span>
+      <span class="gm-streak-num" id="routineStreakNum">0</span>
+      <span>day streak</span>
     </div>
   </div>
 
@@ -781,56 +737,26 @@ body::after {
     saveStreak(s);
   }
 
-  // ---------- ticker ----------
-  const tickerStage = document.getElementById('goalTickerStage');
-  const tickerMeta  = document.getElementById('goalTickerMeta');
-  let cycleIdx = 0, tickerTimer = null;
-
-  function buildTickerItems() {
-    const goals = getGoals(todayKey());
-    const total = goals.length, done = goals.filter(g => g.done).length;
-    if (total === 0) return { items: [{ status: 'empty', text: 'No goals set for today — add one to get rolling.' }], done, total };
-    if (done === total) return { items: [{ status: 'done', text: '✓ All goals done — solid day.' }], done, total };
-    return { items: goals.filter(g => !g.done).map(g => ({ status: 'pending', text: g.text })), done, total };
-  }
-  function statusGlyph(s) { return s === 'done' ? '✓' : s === 'pending' ? '○' : '·'; }
-
-  let firstTick = true;
-  function tick() {
-    const { items, done, total } = buildTickerItems();
-    if (cycleIdx >= items.length) cycleIdx = 0;
-    const item = items[cycleIdx];
-    cycleIdx = (cycleIdx + 1) % items.length;
-    tickerMeta.textContent = done + '/' + total;
-    let row = tickerStage.querySelector('.goal-ticker-row');
-    if (!row) {
-      row = document.createElement('div');
-      row.className = 'goal-ticker-row';
-      row.innerHTML = '<span class="goal-ticker-status"></span><span class="goal-ticker-text"></span>';
-      tickerStage.appendChild(row);
-    }
-    const statusEl = row.querySelector('.goal-ticker-status');
-    const textEl   = row.querySelector('.goal-ticker-text');
-    const apply = () => { statusEl.setAttribute('data-status', item.status); statusEl.textContent = statusGlyph(item.status); textEl.textContent = item.text; row.classList.remove('is-fading'); };
-    if (firstTick) { apply(); firstTick = false; return; }
-    row.classList.add('is-fading');
-    setTimeout(apply, 220);
-  }
-  function startTicker() { tick(); if (tickerTimer) clearInterval(tickerTimer); tickerTimer = setInterval(tick, 5000); }
-  window.addEventListener('goals-changed', () => { cycleIdx = 0; tick(); });
-
   // ---------- routine ----------
   const PERIODS = ['morning', 'noon', 'night'];
-  const DAY_KEYS   = ['sun','mon','tue','wed','thu','fri','sat'];
-  const DAY_LABELS = { sun:'Sun', mon:'Mon', tue:'Tue', wed:'Wed', thu:'Thu', fri:'Fri', sat:'Sat' };
-  const DAY_FULL   = { sun:'Sunday', mon:'Monday', tue:'Tuesday', wed:'Wednesday', thu:'Thursday', fri:'Friday', sat:'Saturday' };
+  const DAY_KEYS    = ['sun','mon','tue','wed','thu','fri','sat'];
+  const DAY_LABELS  = { sun:'Sun', mon:'Mon', tue:'Tue', wed:'Wed', thu:'Thu', fri:'Fri', sat:'Sat' };
+  const DAY_FULL    = { sun:'Sunday', mon:'Monday', tue:'Tuesday', wed:'Wednesday', thu:'Thursday', fri:'Friday', sat:'Saturday' };
+  const DAY_LETTERS = { sun:'S', mon:'M', tue:'T', wed:'W', thu:'T', fri:'F', sat:'S' };
 
   // one-time cleanup of the old universal routine keys (pre-day-specific version)
   ['routine:morning', 'routine:noon', 'routine:night'].forEach(storeDelete);
 
-  function getTodayDayKey() {
-    const p = getActiveDateString().split('-').map(Number);
+  function dayOfWeekForDateStr(dateStr) {
+    const p = dateStr.split('-').map(Number);
     return DAY_KEYS[new Date(p[0], p[1]-1, p[2]).getDay()];
+  }
+  function getTodayDayKey() { return dayOfWeekForDateStr(getActiveDateString()); }
+  function addDaysToKey(dateStr, days) {
+    const p = dateStr.split('-').map(Number);
+    const d = new Date(p[0], p[1]-1, p[2]);
+    d.setDate(d.getDate() + days);
+    return dateToKey(d);
   }
 
   function getDayLinks() {
@@ -860,6 +786,79 @@ body::after {
     return { done, total, pct: total === 0 ? 0 : Math.round(done / total * 100) };
   }
 
+  // ---- routine streak history ----
+  function wasRoutineFullyDone(dateStr) {
+    const owner = resolveDayOwner(dayOfWeekForDateStr(dateStr));
+    let total = 0, allDone = true;
+    PERIODS.forEach(p => { getRoutine(owner, p).forEach(t => { total++; if (t.doneDate !== dateStr) allDone = false; }); });
+    return total > 0 && allDone;
+  }
+  function loadRoutineHistory() { const h = storeGet('routine:history'); return (h && typeof h === 'object' && !Array.isArray(h)) ? h : {}; }
+  function saveRoutineHistory(h) { storeSet('routine:history', h); }
+  function loadRoutineStreak() { const s = storeGet('routine:streak'); return (s && typeof s.count === 'number') ? s : { count: 0, lastProcessedDate: '' }; }
+  function saveRoutineStreak(s) { storeSet('routine:streak', s); }
+
+  function processRoutineHistory() {
+    const todayDateStr = getActiveDateString();
+    const history = loadRoutineHistory();
+    const streak  = loadRoutineStreak();
+    if (!streak.lastProcessedDate) {
+      streak.lastProcessedDate = addDaysToKey(todayDateStr, -1);
+      saveRoutineStreak(streak);
+      return;
+    }
+    let cursor = addDaysToKey(streak.lastProcessedDate, 1);
+    while (cursor < todayDateStr) {
+      const owner = resolveDayOwner(dayOfWeekForDateStr(cursor));
+      const hasTasks = PERIODS.some(p => getRoutine(owner, p).length > 0);
+      if (hasTasks) {
+        const done = wasRoutineFullyDone(cursor);
+        history[cursor] = done;
+        streak.count = done ? streak.count + 1 : 0;
+      }
+      streak.lastProcessedDate = cursor;
+      cursor = addDaysToKey(cursor, 1);
+    }
+    saveRoutineHistory(history);
+    saveRoutineStreak(streak);
+  }
+
+  function getDayFireState(dateStr) {
+    if (dateStr === getActiveDateString()) return wasRoutineFullyDone(dateStr);
+    const history = loadRoutineHistory();
+    return history.hasOwnProperty(dateStr) ? !!history[dateStr] : false;
+  }
+
+  function renderStreakStrip() {
+    const wrap = document.getElementById('streakDays');
+    wrap.innerHTML = '';
+    const todayStr = getActiveDateString();
+    for (let i = 6; i >= 0; i--) {
+      const dateStr = addDaysToKey(todayStr, -i);
+      const isToday = dateStr === todayStr;
+      const isFire  = getDayFireState(dateStr);
+      const cell = document.createElement('div');
+      cell.className = 'streak-day-cell' + (isToday ? ' is-today' : '') + (isFire ? ' is-fire' : '');
+      cell.title = formatDate(dateStr);
+      cell.innerHTML = (isFire ? '<div class="streak-day-fire">🔥</div>' : '') +
+                        '<div class="streak-day-letter">' + DAY_LETTERS[dayOfWeekForDateStr(dateStr)] + '</div>';
+      wrap.appendChild(cell);
+    }
+  }
+
+  function getDisplayedRoutineStreak() {
+    const s = loadRoutineStreak();
+    return s.count + (wasRoutineFullyDone(getActiveDateString()) ? 1 : 0);
+  }
+
+  function renderRoutineStreak() {
+    const n = getDisplayedRoutineStreak();
+    document.getElementById('routineStreakNum').textContent = n;
+    document.getElementById('routineStreak').classList.toggle('gm-streak-active', n > 0);
+  }
+
+  function refreshRoutineUI() { updateDayRingRoutine(); renderStreakStrip(); renderRoutineStreak(); }
+
   // ---- main dashboard view: check-off only ----
   function buildRoutineRowReadonly(task, ownerDay, period) {
     const li = document.createElement('li');
@@ -875,7 +874,7 @@ body::after {
       t.doneDate = cb.checked ? getActiveDateString() : null;
       setRoutine(ownerDay, period, list);
       renderRoutinePeriod(period);
-      updateDayRingRoutine();
+      refreshRoutineUI();
     });
     li.appendChild(cb);
 
@@ -960,7 +959,7 @@ body::after {
       links[day] = owner;
     }
     setDayLinks(links);
-    renderModalAll(); renderAllRoutine(); updateDayRingRoutine();
+    renderModalAll(); renderAllRoutine(); refreshRoutineUI();
   }
 
   function renderEditLists() {
@@ -989,7 +988,7 @@ body::after {
           const list = getRoutine(owner, period);
           list.splice(i, 1);
           setRoutine(owner, period, list);
-          renderEditLists(); renderAllRoutine(); updateDayRingRoutine();
+          renderEditLists(); renderAllRoutine(); refreshRoutineUI();
         });
         row.appendChild(del);
 
@@ -1009,7 +1008,7 @@ body::after {
       const list = getRoutine(owner, period);
       list.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2,6), text, doneDate: null });
       setRoutine(owner, period, list);
-      renderEditLists(); renderAllRoutine(); updateDayRingRoutine();
+      renderEditLists(); renderAllRoutine(); refreshRoutineUI();
     });
   });
 
@@ -1020,7 +1019,7 @@ body::after {
   });
   document.getElementById('routineModalDone').addEventListener('click', () => {
     document.getElementById('routineModalBg').classList.remove('show');
-    renderAllRoutine(); updateDayRingRoutine();
+    renderAllRoutine(); refreshRoutineUI();
   });
 
   // ---------- day ring ----------
@@ -1237,15 +1236,18 @@ body::after {
   // ---------- boot ----------
   rollover();
   processStreak();
+  processRoutineHistory();
   renderAllRoutine();
   loadToday();
   renderStreak();
   updateDashDate();
   updateDayRing();
+  renderStreakStrip();
+  renderRoutineStreak();
   setInterval(() => { updateDayRingTime(); updateDashDate(); }, 60 * 1000);
 
   window.addEventListener('storage', () => {
-    loadToday(); renderStreak(); renderAllRoutine(); updateDayRingRoutine();
+    loadToday(); renderStreak(); renderAllRoutine(); refreshRoutineUI();
   });
 })();
 </script>
