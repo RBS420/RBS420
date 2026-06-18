@@ -596,11 +596,6 @@ body::after {
             <span class="gm-progress-label" id="gmProgressLabel">no goals yet</span>
           </div>
         </div>
-        <div class="gm-streak" id="gmStreak">
-          <span class="gm-streak-icon">⚡</span>
-          <span class="gm-streak-num" id="gmStreakNum">0</span>
-          <span>day streak</span>
-        </div>
       </div>
       <div class="gm-bar" id="gmBar"></div>
       <ul id="goalList" class="goal-list gm-list"></ul>
@@ -720,21 +715,6 @@ body::after {
       storeDelete(k);
     });
     setGoals(todayK, today);
-  }
-
-  // ---------- streak ----------
-  function loadStreak() { const s = storeGet('goal_streak_v1'); return (s && typeof s.count === 'number') ? s : { count: 0, lastProcessedDate: '' }; }
-  function saveStreak(s) { storeSet('goal_streak_v1', s); }
-  function processStreak() {
-    const s = loadStreak();
-    const todayDateStr = getActiveDateString();
-    storeListKeys('goals:').map(k => k.slice('goals:'.length)).filter(d => d < todayDateStr).sort().forEach(dateStr => {
-      if (s.lastProcessedDate && dateStr <= s.lastProcessedDate) return;
-      const list = getGoals('goals:' + dateStr);
-      if (list.length > 0) { if (list.every(g => g.done)) s.count += 1; else s.count = 0; }
-      s.lastProcessedDate = dateStr;
-    });
-    saveStreak(s);
   }
 
   // ---------- routine ----------
@@ -1169,11 +1149,7 @@ body::after {
     document.getElementById('gmCardToday').classList.toggle('gm-all-done', total > 0 && done === total);
   }
 
-  function renderStreak() {
-    const s = loadStreak();
-    document.getElementById('gmStreakNum').textContent = s.count;
-    document.getElementById('gmStreak').classList.toggle('gm-streak-active', s.count > 0);
-  }
+
 
   function loadToday() {
     const goals = getGoals(todayKey());
@@ -1235,11 +1211,9 @@ body::after {
 
   // ---------- boot ----------
   rollover();
-  processStreak();
   processRoutineHistory();
   renderAllRoutine();
   loadToday();
-  renderStreak();
   updateDashDate();
   updateDayRing();
   renderStreakStrip();
@@ -1247,7 +1221,7 @@ body::after {
   setInterval(() => { updateDayRingTime(); updateDashDate(); }, 60 * 1000);
 
   window.addEventListener('storage', () => {
-    loadToday(); renderStreak(); renderAllRoutine(); refreshRoutineUI();
+    loadToday(); renderAllRoutine(); refreshRoutineUI();
   });
 })();
 </script>
