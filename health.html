@@ -66,6 +66,17 @@ main {
 }
 .section-title:first-child { margin-top: 0; }
 .section-title::before { content: '≡'; font-size: 14px; opacity: 0.5; }
+.unit-toggle-bar { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-bottom: 6px; }
+.unit-toggle-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-quaternary); }
+.unit-toggle { display: flex; gap: 4px; }
+.unit-btn {
+  font-size: 11px; font-weight: 700; font-family: var(--font-mono);
+  padding: 5px 12px; border-radius: 8px; border: 1px solid var(--border-strong);
+  background: transparent; color: var(--text-tertiary); cursor: pointer;
+  transition: all 0.15s; letter-spacing: 0.05em;
+}
+.unit-btn:hover { color: var(--text-secondary); border-color: rgba(255,255,255,0.2); }
+.unit-btn.active { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.25); color: var(--text-primary); }
 .wt-card {
   background: var(--bg-card);
   border-radius: 16px;
@@ -217,13 +228,21 @@ main {
 <body>
 <main>
 
+  <div class="unit-toggle-bar">
+    <span class="unit-toggle-label">Units</span>
+    <div class="unit-toggle">
+      <button class="unit-btn active" data-unit="kg">KG</button>
+      <button class="unit-btn" data-unit="lbs">LB</button>
+    </div>
+  </div>
+
   <div class="section-title">Log Weight</div>
   <div class="wt-card">
     <div class="log-input-row">
       <div class="log-kg-wrap">
-        <input id="logKgInput" type="number" step="0.1" min="20" max="300"
+        <input id="logKgInput" type="number" step="0.1"
                placeholder="0.0" class="log-kg-input" inputmode="decimal" />
-        <span class="log-kg-unit">kg</span>
+        <span class="log-kg-unit" id="logKgUnitLabel">kg</span>
       </div>
       <div class="log-lbs-display" id="logLbsDisplay">— lbs</div>
     </div>
@@ -272,7 +291,7 @@ main {
   <div class="section-title">Goal Weight</div>
   <div class="wt-card">
     <div class="goal-input-row">
-      <input id="goalKgInput" type="number" step="0.1" min="20" max="300"
+      <input id="goalKgInput" type="number" step="0.1"
              placeholder="0.0 kg" class="goal-kg-input" inputmode="decimal" />
       <span class="goal-lbs-display" id="goalLbsDisplay">— lbs</span>
       <button id="goalSetBtn" class="goal-set-btn">Set Goal</button>
@@ -307,7 +326,11 @@ function todayStr() {
 function fmtDate(dateStr) {
   return new Date(dateStr + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
-function fmtLbs(kg) { return (kg * KG_TO_LBS).toFixed(1) + ' lbs'; }
+let unit = storeGet('weight:unit') === 'lbs' ? 'lbs' : 'kg';
+function unitLabel() { return unit === 'kg' ? 'kg' : 'lb'; }
+function toUnit(kg) { return unit === 'kg' ? kg : kg * KG_TO_LBS; }
+function fromUnit(v) { return unit === 'kg' ? v : v / KG_TO_LBS; }
+function fmtSecondary(kg) { return unit === 'kg' ? (kg * KG_TO_LBS).toFixed(1) + ' lb' : kg.toFixed(1) + ' kg'; }
 
 function addEntry(kg, dateStr) {
   const log = getLog();
@@ -329,16 +352,18 @@ const logBtn = document.getElementById('logBtn');
 logDateInput.value = todayStr();
 
 logKgInput.addEventListener('input', () => {
-  const kg = parseFloat(logKgInput.value);
-  logLbsDisplay.textContent = isNaN(kg) ? '— lbs' : fmtLbs(kg);
+  const val = parseFloat(logKgInput.value);
+  logLbsDisplay.textContent = isNaN(val) ? '—' : fmtSecondary(fromUnit(val));
 });
 logKgInput.addEventListener('keydown', e => { if (e.key === 'Enter') logBtn.click(); });
 logBtn.addEventListener('click', () => {
-  const kg = parseFloat(logKgInput.value);
-  if (isNaN(kg) || kg < 20 || kg > 300) return;
+  const val = parseFloat(logKgInput.value);
+  if (isNaN(val)) return;
+  const kg = fromUnit(val);
+  if (kg < 20 || kg > 300) return;
   addEntry(kg, logDateInput.value || todayStr());
   logKgInput.value = '';
-  logLbsDisplay.textContent = '— lbs';
+  logLbsDisplay.textContent = '—';
   renderAll();
 });
 
@@ -349,13 +374,15 @@ const goalSetBtn = document.getElementById('goalSetBtn');
 const goalMeta = document.getElementById('goalMeta');
 
 goalKgInput.addEventListener('input', () => {
-  const kg = parseFloat(goalKgInput.value);
-  goalLbsDisplay.textContent = isNaN(kg) ? '— lbs' : fmtLbs(kg);
+  const val = parseFloat(goalKgInput.value);
+  goalLbsDisplay.textContent = isNaN(val) ? '—' : fmtSecondary(fromUnit(val));
 });
 goalKgInput.addEventListener('keydown', e => { if (e.key === 'Enter') goalSetBtn.click(); });
 goalSetBtn.addEventListener('click', () => {
-  const kg = parseFloat(goalKgInput.value);
-  if (isNaN(kg) || kg < 20 || kg > 300) return;
+  const val = parseFloat(goalKgInput.value);
+  if (isNaN(val)) return;
+  const kg = fromUnit(val);
+  if (kg < 20 || kg > 300) return;
   setGoalKg(kg);
   renderAll();
 });
@@ -363,15 +390,40 @@ goalMeta.addEventListener('click', e => {
   if (e.target.classList.contains('goal-clear-btn')) {
     clearGoal();
     goalKgInput.value = '';
-    goalLbsDisplay.textContent = '— lbs';
+    goalLbsDisplay.textContent = '—';
     renderAll();
   }
 });
 
 function initGoalInput() {
   const goal = getGoal();
-  if (goal !== null) { goalKgInput.value = goal.toFixed(1); goalLbsDisplay.textContent = fmtLbs(goal); }
+  if (goal !== null) { goalKgInput.value = toUnit(goal).toFixed(1); goalLbsDisplay.textContent = fmtSecondary(goal); }
 }
+
+// ——— Unit toggle ———
+document.querySelectorAll('.unit-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const newUnit = btn.dataset.unit;
+    if (newUnit === unit) return;
+    [logKgInput, goalKgInput].forEach(inputEl => {
+      const val = parseFloat(inputEl.value);
+      if (isNaN(val)) return;
+      const kg = fromUnit(val);
+      const converted = newUnit === 'kg' ? kg : kg * KG_TO_LBS;
+      inputEl.value = converted.toFixed(1);
+    });
+    unit = newUnit;
+    storeSet('weight:unit', unit);
+    document.querySelectorAll('.unit-btn').forEach(b => b.classList.toggle('active', b.dataset.unit === unit));
+    document.getElementById('logKgUnitLabel').textContent = unitLabel();
+    goalKgInput.placeholder = '0.0 ' + unitLabel();
+    const logVal = parseFloat(logKgInput.value);
+    logLbsDisplay.textContent = isNaN(logVal) ? '—' : fmtSecondary(fromUnit(logVal));
+    const goalVal = parseFloat(goalKgInput.value);
+    goalLbsDisplay.textContent = isNaN(goalVal) ? '—' : fmtSecondary(fromUnit(goalVal));
+    renderAll();
+  });
+});
 
 // ——— Window toggle ———
 let activeWindow = 30;
@@ -434,8 +486,8 @@ function renderStats() {
   const statCurrent = document.getElementById('statCurrent');
   const statCurrentSub = document.getElementById('statCurrentSub');
   if (current !== null) {
-    statCurrent.textContent = current.toFixed(1) + ' kg';
-    statCurrentSub.textContent = fmtLbs(current);
+    statCurrent.textContent = toUnit(current).toFixed(1) + ' ' + unitLabel();
+    statCurrentSub.textContent = fmtSecondary(current);
   } else {
     statCurrent.textContent = '—';
     statCurrentSub.textContent = 'no entries';
@@ -444,7 +496,7 @@ function renderStats() {
   const statWeekly = document.getElementById('statWeekly');
   const statWeeklySub = document.getElementById('statWeeklySub');
   if (weeklyChange !== null) {
-    statWeekly.textContent = (weeklyChange >= 0 ? '+' : '') + weeklyChange.toFixed(2) + ' kg';
+    statWeekly.textContent = (weeklyChange >= 0 ? '+' : '') + toUnit(weeklyChange).toFixed(2) + ' ' + unitLabel();
     statWeeklySub.textContent = 'per week';
   } else {
     statWeekly.textContent = '—';
@@ -454,7 +506,7 @@ function renderStats() {
   const statGoalEl = document.getElementById('statGoal');
   const statGoalSub = document.getElementById('statGoalSub');
   if (goal !== null) {
-    statGoalEl.textContent = goal.toFixed(1) + ' kg';
+    statGoalEl.textContent = toUnit(goal).toFixed(1) + ' ' + unitLabel();
     statGoalSub.textContent = direction || '—';
   } else {
     statGoalEl.textContent = '—';
@@ -463,11 +515,11 @@ function renderStats() {
 
   // Goal card meta
   if (goal !== null && current !== null) {
-    const diff = Math.abs(goal - current).toFixed(1);
-    const label = direction === 'Cutting' ? `${diff} kg to lose` : direction === 'Bulking' ? `${diff} kg to gain` : 'You are at goal weight';
+    const diff = toUnit(Math.abs(goal - current)).toFixed(1);
+    const label = direction === 'Cutting' ? `${diff} ${unitLabel()} to lose` : direction === 'Bulking' ? `${diff} ${unitLabel()} to gain` : 'You are at goal weight';
     goalMeta.innerHTML = `<span>${direction} · ${label}</span><button class="goal-clear-btn">clear</button>`;
   } else if (goal !== null) {
-    goalMeta.innerHTML = `<span>${goal.toFixed(1)} kg set</span><button class="goal-clear-btn">clear</button>`;
+    goalMeta.innerHTML = `<span>${toUnit(goal).toFixed(1)} ${unitLabel()} set</span><button class="goal-clear-btn">clear</button>`;
   } else {
     goalMeta.innerHTML = '';
   }
@@ -501,8 +553,8 @@ function renderHistory() {
   histEl.innerHTML = [...log].reverse().map(e => `
     <div class="history-item">
       <span class="history-date">${fmtDate(e.date)}</span>
-      <span class="history-kg">${e.kg.toFixed(1)} kg</span>
-      <span class="history-lbs">${fmtLbs(e.kg)}</span>
+      <span class="history-kg">${toUnit(e.kg).toFixed(1)} ${unitLabel()}</span>
+      <span class="history-lbs">${fmtSecondary(e.kg)}</span>
       <button class="history-del" data-date="${e.date}" aria-label="Delete">×</button>
     </div>`).join('');
   histEl.querySelectorAll('.history-del').forEach(btn => {
@@ -565,7 +617,7 @@ function drawChart() {
   ctx.font = '10px ui-monospace,"SF Mono",Menlo,monospace';
   ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
   for (let i = 0; i <= 4; i++) {
-    ctx.fillText((yMin + (ySpan / 4) * (4 - i)).toFixed(1), PL - 5, PT + (cH / 4) * i);
+    ctx.fillText(toUnit(yMin + (ySpan / 4) * (4 - i)).toFixed(1), PL - 5, PT + (cH / 4) * i);
   }
 
   // X labels
@@ -589,7 +641,7 @@ function drawChart() {
     ctx.fillStyle = 'rgba(255,255,255,0.28)';
     ctx.font = '9px ui-monospace,"SF Mono",Menlo,monospace';
     ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic';
-    ctx.fillText('goal ' + goal.toFixed(1), PL + cW, gy - 4);
+    ctx.fillText('goal ' + toUnit(goal).toFixed(1), PL + cW, gy - 4);
   }
 
   if (wData.length === 0) {
@@ -625,6 +677,9 @@ let resizeTimer;
 window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(drawChart, 100); });
 window.addEventListener('storage', renderAll);
 
+document.querySelectorAll('.unit-btn').forEach(b => b.classList.toggle('active', b.dataset.unit === unit));
+document.getElementById('logKgUnitLabel').textContent = unitLabel();
+goalKgInput.placeholder = '0.0 ' + unitLabel();
 initGoalInput();
 renderAll();
 })();
