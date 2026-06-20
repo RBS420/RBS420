@@ -46,6 +46,10 @@ const CONFIG = {
   // raise it for more volume bias (e.g. 10).
   upgradeAtReps: 8,
 
+  // Hard ceiling — no matter what rep range an exercise is set to, hitting
+  // this many reps always means "add weight next time," full stop.
+  hardRepCeiling: 15,
+
   // Starter exercise list. Each one needs:
   //   name        — what shows in the dropdown
   //   day         — one of the day ids above
@@ -796,10 +800,12 @@ img, video, canvas, svg { max-width: 100%; }
   padding: 18px 20px;
   color: var(--text-1);
   margin-top: 12px; cursor: pointer; width: 100%;
-  font-family: inherit; text-align: left;
+  font-family: inherit; text-align: left; text-decoration: none;
+  box-sizing: border-box;
   transition: border-color 0.2s, transform 0.15s;
   -webkit-tap-highlight-color: transparent;
 }
+.wt-progress-link:visited { color: var(--text-1); }
 .wt-progress-link:hover { border-color: rgba(110,231,183,0.25); }
 .wt-progress-link:active { transform: scale(0.99); }
 .wt-progress-label {
@@ -1073,6 +1079,14 @@ img, video, canvas, svg { max-width: 100%; }
     </div>
     <span class="wt-progress-arrow">→</span>
   </button>
+
+  <a class="wt-progress-link" href="gym-analytics.html" aria-label="Open workout analytics">
+    <div>
+      <div class="wt-progress-label">ANALYTICS</div>
+      <div class="wt-progress-count">Trends by workout &amp; exercise</div>
+    </div>
+    <span class="wt-progress-arrow">→</span>
+  </a>
 
   <!-- Progress photos overlay -->
   <div class="wt-overlay" id="wtOverlay" aria-hidden="true">
@@ -1407,6 +1421,7 @@ img, video, canvas, svg { max-width: 100%; }
     const { weight, reps } = last;
     const { repMin, repMax, step, bw } = ex;
     const upgradeAt = Math.min(CONFIG.upgradeAtReps || 8, repMax);
+    const hardCeiling = CONFIG.hardRepCeiling || 15;
     let stuck = 0;
     for (let i = logs.length - 1; i >= 0; i--) {
       if (logs[i].weight === weight) stuck++; else break;
@@ -1415,6 +1430,12 @@ img, video, canvas, svg { max-width: 100%; }
       if (reps >= upgradeAt) return { type: 'up', weight: 0, reps: reps + 1, tag: 'Push for more', reason: reps + ' reps — strong. Push for ' + (reps + 1) + ' next time.', bw: true };
       if (reps >= repMin) return { type: 'hold', weight: 0, reps: reps + 1, tag: 'Add a rep', reason: reps + ' reps. Push for ' + (reps + 1) + ' next session.', bw: true };
       return { type: 'hold', weight: 0, reps: repMin, tag: 'Repeat', reason: reps + ' reps fell short. Repeat until you hit ' + repMin + '+.', bw: true };
+    }
+    // Hard ceiling — overrides everything else below. No matter what rep
+    // range this exercise is configured for, this many reps always means
+    // it's time to add weight.
+    if (reps >= hardCeiling) {
+      return { type: 'up', weight: weight + step, reps: repMin, tag: 'Add weight', reason: 'You hit ' + reps + ' reps — well past ' + hardCeiling + '. Add ' + step + unit() + ' next session no matter what.' };
     }
     if (stuck >= 3 && reps < repMin) {
       const dl = roundToStep(weight * 0.9, step);

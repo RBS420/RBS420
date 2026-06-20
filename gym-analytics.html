@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0b">
+<title>Workout Analytics</title>
+<style>
+:root {
+  --bg: #0a0a0b;
+  --bg-card: #111113;
+  --text-1: #ffffff;
+  --text-2: rgba(255,255,255,0.6);
+  --text-3: rgba(255,255,255,0.4);
+  --text-4: rgba(255,255,255,0.25);
+  --border: rgba(255,255,255,0.06);
+  --border-strong: rgba(255,255,255,0.14);
+  --good: #6ee7b7;
+  --warn: #fbbf24;
+  --bad: #ff8a8a;
+  --font: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, SF Mono, Menlo, Consolas, monospace;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, #14141a 0%, #0a0a0b 60%);
+  color: var(--text-1);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+  width: 100%; max-width: 100vw;
+}
+.po-shell {
+  width: 100%; max-width: min(720px, 100vw);
+  margin: 0 auto;
+  padding: 24px max(16px, env(safe-area-inset-right)) calc(40px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  box-sizing: border-box;
+}
+.po-shell *, .po-shell *::before, .po-shell *::after { min-width: 0; }
+img, video, canvas, svg { max-width: 100%; }
+
+.an-header {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 18px;
+}
+.an-back {
+  width: 38px; height: 38px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text-1); text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  flex-shrink: 0;
+}
+.an-back:hover { background: rgba(255,255,255,0.08); }
+.an-title { font-size: 22px; font-weight: 700; letter-spacing: -0.015em; margin: 0; }
+
+.an-day-group { margin-bottom: 22px; }
+.an-day-title {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--text-3);
+  margin-bottom: 10px;
+}
+.an-day-title::before {
+  content: ''; width: 24px; height: 1px; background: var(--border-strong);
+}
+.an-empty {
+  padding: 24px 0; text-align: center; font-size: 13px; color: var(--text-3); font-style: italic;
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 0;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.an-ex-header {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; padding: 16px 18px;
+  background: transparent; border: none; cursor: pointer;
+  font-family: inherit; text-align: left; color: var(--text-1);
+  -webkit-tap-highlight-color: transparent;
+}
+.an-ex-name { font-size: 14px; font-weight: 700; flex: 1; min-width: 0; }
+.an-ex-meta { font-size: 11px; color: var(--text-3); font-variant-numeric: tabular-nums; }
+.an-ex-chevron { font-size: 13px; color: var(--text-3); transition: transform 0.2s; flex-shrink: 0; }
+.an-ex-card.is-open .an-ex-chevron { transform: rotate(180deg); }
+.an-ex-body {
+  padding: 0 18px 18px;
+  display: flex; flex-direction: column; gap: 18px;
+}
+.an-ex-body.hidden { display: none; }
+
+.po-sub-title-an {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--text-3); margin-bottom: 8px;
+}
+
+.po-rx-card {
+  padding: 16px 18px; border-radius: 14px;
+  background: rgba(255,255,255,0.025);
+  border: 1px solid var(--border);
+}
+.po-rx-card.po-rx-up   { background: linear-gradient(180deg, rgba(110,231,183,0.08), rgba(255,255,255,0.025)); border-color: rgba(110,231,183,0.18); }
+.po-rx-card.po-rx-down { background: linear-gradient(180deg, rgba(255,138,138,0.08), rgba(255,255,255,0.025)); border-color: rgba(255,138,138,0.18); }
+.po-rx-label {
+  font-size: 10.5px; color: var(--text-3); font-weight: 700;
+  letter-spacing: 0.10em; text-transform: uppercase; margin-bottom: 6px;
+}
+.po-rx-headline {
+  font-size: 22px; font-weight: 700; letter-spacing: -0.01em;
+  line-height: 1.2; margin-bottom: 10px;
+}
+.po-accent { color: var(--text-1); }
+.po-rx-tag {
+  display: inline-block; padding: 4px 10px; border-radius: 999px;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: rgba(255,255,255,0.06); color: var(--text-2);
+  margin-bottom: 10px;
+}
+.po-rx-tag.up   { background: rgba(110,231,183,0.14); color: var(--good); }
+.po-rx-tag.down { background: rgba(255,138,138,0.14); color: var(--bad); }
+.po-rx-tag.hold { background: rgba(251,191,36,0.14); color: var(--warn); }
+.po-rx-reason { margin: 0; font-size: 13px; line-height: 1.5; color: var(--text-2); }
+.po-rx-empty { font-size: 13px; color: var(--text-3); padding: 16px 0; text-align: center; }
+
+.po-stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.po-stat-box {
+  padding: 14px 12px;
+  background: rgba(255,255,255,0.025);
+  border: 1px solid var(--border);
+  border-radius: 12px; text-align: center;
+}
+.po-stat-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.10em;
+  text-transform: uppercase; color: var(--text-3); margin-bottom: 6px;
+}
+.po-stat-val { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.po-unit { font-size: 11px; color: var(--text-3); font-weight: 500; margin-left: 2px; }
+
+.an-chart-wrap canvas { display: block; width: 100%; height: 180px; }
+
+.po-empty { padding: 14px 0; text-align: center; font-size: 12px; color: var(--text-3); font-style: italic; }
+.po-hist-row {
+  display: grid; grid-template-columns: 60px 1fr; gap: 12px;
+  padding: 8px 4px; align-items: center;
+  border-bottom: 1px solid var(--border);
+}
+.po-hist-row:last-child { border-bottom: none; }
+.po-hist-date { font-size: 11px; color: var(--text-3); font-family: var(--font-mono); }
+.po-hist-set { font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+::selection { background: rgba(255,255,255,0.18); }
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+</style>
+</head>
+<body>
+
+<div class="po-shell">
+  <div class="an-header">
+    <a class="an-back" href="gym.html" aria-label="Back to workout">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+    </a>
+    <h1 class="an-title">Analytics</h1>
+  </div>
+
+  <div id="anContent"></div>
+</div>
+
+<script>
+(() => {
+'use strict';
+
+const LS_KEY = 'po_coach_v1';
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch (e) { return {}; }
+}
+const state = loadState();
+const days = Array.isArray(state.days) ? state.days : [];
+const exercises = Array.isArray(state.exercises) ? state.exercises : [];
+const logsByEx = (state.logs && typeof state.logs === 'object') ? state.logs : {};
+const units = state.units || 'kg';
+
+function unit() { return units; }
+function getLogsFor(exId) { return (logsByEx[exId] || []).slice(); }
+function estimate1RM(w, r) { if (r < 2) return w; return w * (1 + r / 30); }
+function roundToStep(v, s) { return Math.round(v / s) * s; }
+function escape(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// Mirrors getRx() in gym.html — keep the two in sync if you change the
+// progression rules (upgrade trigger, hard rep ceiling, deload logic).
+const UPGRADE_AT_REPS = 8;
+const HARD_REP_CEILING = 15;
+function getRx(ex, logs) {
+  if (!logs.length) return null;
+  const last = logs[logs.length - 1];
+  const { weight, reps } = last;
+  const { repMin, repMax, step, bw } = ex;
+  const upgradeAt = Math.min(UPGRADE_AT_REPS, repMax);
+  let stuck = 0;
+  for (let i = logs.length - 1; i >= 0; i--) {
+    if (logs[i].weight === weight) stuck++; else break;
+  }
+  if (bw) {
+    if (reps >= upgradeAt) return { type: 'up', tag: 'Push for more', headline: reps + ' reps', reason: reps + ' reps — strong. Push for ' + (reps + 1) + ' next time.' };
+    if (reps >= repMin) return { type: 'hold', tag: 'Add a rep', headline: reps + ' reps', reason: reps + ' reps. Push for ' + (reps + 1) + ' next session.' };
+    return { type: 'hold', tag: 'Repeat', headline: reps + ' reps', reason: reps + ' reps fell short. Repeat until you hit ' + repMin + '+.' };
+  }
+  if (reps >= HARD_REP_CEILING) {
+    return { type: 'up', tag: 'Add weight', headline: (weight + step) + unit() + ' × ' + repMin, reason: 'You hit ' + reps + ' reps — well past ' + HARD_REP_CEILING + '. Add ' + step + unit() + ' next session no matter what.' };
+  }
+  if (stuck >= 3 && reps < repMin) {
+    const dl = roundToStep(weight * 0.9, step);
+    return { type: 'down', tag: 'Deload', headline: dl + unit() + ' × ' + repMax, reason: 'Stuck at ' + weight + unit() + ' for ' + stuck + ' sessions. Drop 10%, reset, build back cleaner.' };
+  }
+  if (reps >= upgradeAt) return { type: 'up', tag: 'Add weight', headline: (weight + step) + unit() + ' × ' + repMin, reason: 'You hit ' + reps + ' reps — time to add ' + step + unit() + '. Expect ' + repMin + '-' + (repMin + 1) + ' next session.' };
+  if (reps >= repMin && reps < upgradeAt) return { type: 'hold', tag: 'Add a rep', headline: weight + unit() + ' × ' + (reps + 1), reason: reps + ' reps in target. Stay at ' + weight + unit() + ', push for ' + (reps + 1) + '.' };
+  return { type: 'hold', tag: 'Repeat', headline: weight + unit() + ' × ' + repMin, reason: reps + ' reps short of ' + repMin + '-' + upgradeAt + '. Repeat ' + weight + unit() + ' until you hit ' + repMin + '+ clean.' };
+}
+
+function renderRxCard(ex, logs) {
+  if (!logs.length) {
+    return '<div class="po-rx-empty">No logs yet — nothing to suggest.</div>';
+  }
+  const rx = getRx(ex, logs);
+  return '<div class="po-rx-card po-rx-' + rx.type + '">'
+    + '<div class="po-rx-label">' + escape(ex.name) + '</div>'
+    + '<div class="po-rx-headline"><span class="po-accent">' + escape(rx.headline) + '</span></div>'
+    + '<span class="po-rx-tag ' + rx.type + '">' + escape(rx.tag) + '</span>'
+    + '<p class="po-rx-reason">' + escape(rx.reason) + '</p>'
+    + '</div>';
+}
+
+function renderStats(ex, logs) {
+  if (!logs.length) {
+    return '<div class="po-stats-row">'
+      + '<div class="po-stat-box"><div class="po-stat-label">' + (ex.bw ? 'Best reps' : 'Est. 1RM') + '</div><div class="po-stat-val">—</div></div>'
+      + '<div class="po-stat-box"><div class="po-stat-label">Best set</div><div class="po-stat-val">—</div></div>'
+      + '<div class="po-stat-box"><div class="po-stat-label">Sessions</div><div class="po-stat-val">—</div></div>'
+      + '</div>';
+  }
+  let oneRmHtml;
+  if (ex.bw) {
+    const br = Math.max.apply(null, logs.map(l => l.reps));
+    oneRmHtml = br + '<span class="po-unit">reps</span>';
+  } else {
+    const orm = Math.max.apply(null, logs.map(l => estimate1RM(l.weight, l.reps)));
+    oneRmHtml = Math.round(orm) + '<span class="po-unit">' + unit() + '</span>';
+  }
+  let best = logs[0];
+  logs.forEach(l => {
+    const cur = ex.bw ? l.reps : estimate1RM(l.weight, l.reps);
+    const bestVal = ex.bw ? best.reps : estimate1RM(best.weight, best.reps);
+    if (cur > bestVal) best = l;
+  });
+  const bestStr = ex.bw ? (best.reps + 'r') : (best.weight + '×' + best.reps);
+  return '<div class="po-stats-row">'
+    + '<div class="po-stat-box"><div class="po-stat-label">' + (ex.bw ? 'Best reps' : 'Est. 1RM') + '</div><div class="po-stat-val">' + oneRmHtml + '</div></div>'
+    + '<div class="po-stat-box"><div class="po-stat-label">Best set</div><div class="po-stat-val">' + bestStr + '</div></div>'
+    + '<div class="po-stat-box"><div class="po-stat-label">Sessions</div><div class="po-stat-val">' + logs.length + '</div></div>'
+    + '</div>';
+}
+
+function renderHistory(ex, logs) {
+  if (!logs.length) return '<div class="po-empty">No logs yet.</div>';
+  const rev = logs.slice().reverse();
+  return rev.slice(0, 30).map(l => {
+    const d = new Date(l.date);
+    const dStr = (d.getMonth() + 1) + '/' + d.getDate();
+    const setStr = ex.bw ? (l.reps + ' reps') : (l.weight + unit() + ' × ' + l.reps);
+    return '<div class="po-hist-row"><div class="po-hist-date">' + dStr + '</div><div class="po-hist-set">' + setStr + '</div></div>';
+  }).join('');
+}
+
+function drawChart(canvas, ex, logs) {
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.parentElement.clientWidth || 300;
+  const H = 180;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, W, H);
+
+  if (!logs.length) {
+    ctx.fillStyle = 'rgba(255,255,255,0.18)';
+    ctx.font = '13px -apple-system, sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('No logs yet', W / 2, H / 2);
+    return;
+  }
+
+  const PL = 46, PR = 14, PT = 12, PB = 24;
+  const cW = W - PL - PR, cH = H - PT - PB;
+  const vals = logs.map(l => ex.bw ? l.reps : l.weight);
+  let yRange = Math.max(...vals) - Math.min(...vals);
+  if (yRange < 1) yRange = 1;
+  const pad = yRange * 0.18 + 0.5;
+  const yMin = Math.min(...vals) - pad, yMax = Math.max(...vals) + pad, ySpan = yMax - yMin;
+  const tStart = new Date(logs[0].date).getTime();
+  const tEnd = new Date(logs[logs.length - 1].date).getTime();
+  const tSpan = Math.max(1, tEnd - tStart);
+
+  const yPx = v => PT + cH - ((v - yMin) / ySpan) * cH;
+  const xPx = (t) => logs.length === 1 ? PL + cW / 2 : PL + ((t - tStart) / tSpan) * cW;
+
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)'; ctx.lineWidth = 1;
+  for (let i = 0; i <= 3; i++) {
+    const y = PT + (cH / 3) * i;
+    ctx.beginPath(); ctx.moveTo(PL, y); ctx.lineTo(PL + cW, y); ctx.stroke();
+  }
+  ctx.fillStyle = 'rgba(255,255,255,0.28)';
+  ctx.font = '10px ui-monospace, "SF Mono", Menlo, monospace';
+  ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  for (let i = 0; i <= 3; i++) {
+    ctx.fillText((yMin + (ySpan / 3) * (3 - i)).toFixed(1), PL - 6, PT + (cH / 3) * i);
+  }
+
+  ctx.fillStyle = 'rgba(255,255,255,0.22)';
+  ctx.font = '9px ui-monospace, "SF Mono", Menlo, monospace';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+  const xCount = Math.min(5, logs.length - 1);
+  for (let i = 0; i <= xCount; i++) {
+    const t = tStart + (tSpan / Math.max(xCount, 1)) * i;
+    const d = new Date(t);
+    ctx.fillText((d.getMonth() + 1) + '/' + d.getDate(), PL + (cW / Math.max(xCount, 1)) * i, PT + cH + 17);
+  }
+
+  if (logs.length > 1) {
+    ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 2;
+    ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    ctx.beginPath();
+    logs.forEach((l, i) => {
+      const t = new Date(l.date).getTime();
+      const x = xPx(t), y = yPx(ex.bw ? l.reps : l.weight);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+  }
+  logs.forEach(l => {
+    const t = new Date(l.date).getTime();
+    const x = xPx(t), y = yPx(ex.bw ? l.reps : l.weight);
+    ctx.beginPath(); ctx.arc(x, y, 3.5, 0, Math.PI * 2);
+    ctx.fillStyle = '#FFFFFF'; ctx.fill();
+  });
+}
+
+function renderExerciseCard(ex) {
+  const logs = getLogsFor(ex.id);
+  return '<div class="card an-ex-card" data-ex-id="' + ex.id + '">'
+    + '<button type="button" class="an-ex-header" data-action="toggle">'
+    +   '<span class="an-ex-name">' + escape(ex.name) + '</span>'
+    +   '<span class="an-ex-meta">' + logs.length + ' session' + (logs.length === 1 ? '' : 's') + '</span>'
+    +   '<span class="an-ex-chevron">▾</span>'
+    + '</button>'
+    + '<div class="an-ex-body hidden">'
+    +   '<div>'
+    +     '<div class="po-sub-title-an">Next session</div>'
+    +     renderRxCard(ex, logs)
+    +   '</div>'
+    +   '<div>'
+    +     '<div class="po-sub-title-an">Stats</div>'
+    +     renderStats(ex, logs)
+    +   '</div>'
+    +   '<div class="an-chart-wrap">'
+    +     '<div class="po-sub-title-an">Weight over time (full history)</div>'
+    +     '<canvas></canvas>'
+    +   '</div>'
+    +   '<div>'
+    +     '<div class="po-sub-title-an">History</div>'
+    +     renderHistory(ex, logs)
+    +   '</div>'
+    + '</div>'
+    + '</div>';
+}
+
+function renderAll() {
+  const container = document.getElementById('anContent');
+  if (!days.length || !exercises.length) {
+    container.innerHTML = '<div class="an-empty">No workout data yet — log a few sets on the Fitness tab first.</div>';
+    return;
+  }
+  const groups = days.map(day => {
+    const dayExercises = exercises.filter(ex => ex.day === day.id);
+    if (!dayExercises.length) return '';
+    return '<div class="an-day-group">'
+      + '<div class="an-day-title">' + escape(day.name) + '</div>'
+      + dayExercises.map(renderExerciseCard).join('')
+      + '</div>';
+  }).join('');
+  container.innerHTML = groups || '<div class="an-empty">No exercises yet.</div>';
+
+  container.querySelectorAll('.an-ex-card').forEach(card => {
+    const header = card.querySelector('.an-ex-header');
+    const body = card.querySelector('.an-ex-body');
+    header.addEventListener('click', () => {
+      const isOpen = card.classList.contains('is-open');
+      if (isOpen) {
+        card.classList.remove('is-open');
+        body.classList.add('hidden');
+        return;
+      }
+      card.classList.add('is-open');
+      body.classList.remove('hidden');
+      const exId = card.dataset.exId;
+      const ex = exercises.find(x => x.id === exId);
+      const logs = getLogsFor(exId);
+      drawChart(card.querySelector('canvas'), ex, logs);
+    });
+  });
+}
+
+renderAll();
+window.addEventListener('resize', () => {
+  document.querySelectorAll('.an-ex-card.is-open').forEach(card => {
+    const exId = card.dataset.exId;
+    const ex = exercises.find(x => x.id === exId);
+    drawChart(card.querySelector('canvas'), ex, getLogsFor(exId));
+  });
+});
+})();
+</script>
+</body>
+</html>
