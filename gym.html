@@ -16,8 +16,6 @@
      ============================================================= -->
 <script>
 const CONFIG = {
-  appTitle: "Progressive Overload Coach",
-
   // Weight unit shown everywhere. "kg" or "lb".
   units: "kg",
 
@@ -271,38 +269,6 @@ img, video, canvas, svg { max-width: 100%; }
   content: ''; width: 24px; height: 1px; background: var(--border-strong);
 }
 
-/* ----- Exercise picker ----- */
-.po-exercise-bar { display: flex; gap: 8px; align-items: center; }
-.po-ex-select {
-  flex: 1 1 0; min-width: 0;
-  padding: 12px 14px;
-  border: 1px solid var(--border);
-  background: rgba(0,0,0,0.28);
-  color: var(--text-1); border-radius: 12px;
-  font-family: inherit; font-size: 14px; font-weight: 500;
-  appearance: none; -webkit-appearance: none;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path d='M2 4l4 4 4-4' stroke='%2387847B' stroke-width='1.5' fill='none' stroke-linecap='round'/></svg>");
-  background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px;
-  text-overflow: ellipsis; overflow: hidden;
-}
-.po-ex-select:focus {
-  outline: none; border-color: rgba(255,255,255,0.40);
-  box-shadow: 0 0 0 3px rgba(255,255,255,0.06);
-}
-.po-ex-select:disabled { opacity: 0.5; }
-.po-btn-icon {
-  width: 44px; height: 44px;
-  display: flex; align-items: center; justify-content: center;
-  border: 1px solid var(--border);
-  background: rgba(255,255,255,0.04);
-  color: var(--text-2); border-radius: 12px;
-  font-size: 16px; cursor: pointer;
-  transition: background 0.18s, border-color 0.18s, color 0.18s;
-  flex-shrink: 0;
-  -webkit-tap-highlight-color: transparent;
-}
-.po-btn-icon:hover { background: rgba(255,255,255,0.10); color: var(--text-1); }
-.po-btn-icon:disabled { opacity: 0.4; cursor: not-allowed; }
 .po-no-ex {
   background: rgba(255,255,255,0.025);
   border: 1px dashed var(--border);
@@ -310,16 +276,54 @@ img, video, canvas, svg { max-width: 100%; }
   font-size: 13px; color: var(--text-3); margin-top: 10px;
 }
 
-/* ----- Bodyweight banner ----- */
-.po-bw-banner {
-  background: rgba(255,255,255,0.04);
+/* ----- Today's workout exercise rows ----- */
+.po-ex-row {
+  display: flex; flex-direction: column; gap: 10px;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.025);
   border: 1px solid var(--border);
-  color: var(--text-2);
-  font-size: 11px; font-weight: 700; letter-spacing: 0.10em;
-  text-transform: uppercase; text-align: center;
-  padding: 8px; border-radius: 8px; margin-bottom: 12px; display: none;
+  border-radius: 12px;
+  margin-bottom: 8px;
 }
-.po-bw-banner.show { display: block; }
+.po-ex-row-name {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+  background: transparent; border: none; padding: 0;
+  cursor: pointer; font-family: inherit; text-align: left;
+  -webkit-tap-highlight-color: transparent;
+}
+.po-ex-row-title { font-size: 14px; font-weight: 700; color: var(--text-1); }
+.po-ex-row-meta { font-size: 11px; color: var(--text-3); font-variant-numeric: tabular-nums; }
+.po-ex-row-inputs {
+  display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; align-items: stretch;
+}
+.po-ex-row-inputs.po-bw-mode { grid-template-columns: 1fr auto; }
+.po-ex-w, .po-ex-r {
+  padding: 11px 10px;
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,0.28);
+  color: var(--text-1); border-radius: 10px;
+  font-family: inherit; font-size: 16px; font-weight: 600; text-align: center;
+  font-variant-numeric: tabular-nums;
+  -moz-appearance: textfield; min-width: 0;
+}
+.po-ex-w::-webkit-outer-spin-button, .po-ex-w::-webkit-inner-spin-button,
+.po-ex-r::-webkit-outer-spin-button, .po-ex-r::-webkit-inner-spin-button {
+  -webkit-appearance: none; margin: 0;
+}
+.po-ex-w:focus, .po-ex-r:focus {
+  outline: none; border-color: rgba(255,255,255,0.40);
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.06);
+}
+.po-ex-log-btn {
+  padding: 0 16px;
+  border: 1px solid rgba(255,255,255,0.85);
+  background: linear-gradient(180deg, #ffffff 0%, #e8e5dd 100%);
+  color: #0a0a0b; border-radius: 10px;
+  font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.po-ex-log-btn:hover { transform: translateY(-1px); }
+.po-ex-log-btn:active { transform: translateY(0) scale(0.96); }
 
 /* ----- Last set summary ----- */
 .po-last-set {
@@ -348,7 +352,6 @@ img, video, canvas, svg { max-width: 100%; }
 .po-log-grid {
   display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;
 }
-.po-log-grid.po-bw-mode { grid-template-columns: 1fr; }
 .po-field { display: flex; flex-direction: column; gap: 8px; }
 .po-field > label {
   font-size: 10.5px; color: var(--text-3); font-weight: 700;
@@ -372,43 +375,6 @@ img, video, canvas, svg { max-width: 100%; }
   outline: none; border-color: rgba(255,255,255,0.40);
   box-shadow: 0 0 0 3px rgba(255,255,255,0.06);
 }
-.po-weight-row {
-  display: grid; grid-template-columns: auto 1fr auto; gap: 6px; align-items: stretch;
-}
-.po-w-btn {
-  padding: 0 16px;
-  border: 1px solid var(--border);
-  background: rgba(255,255,255,0.04);
-  color: var(--text-1);
-  border-radius: 12px; font-family: inherit;
-  font-size: 20px; font-weight: 700; cursor: pointer;
-  min-width: 48px;
-  -webkit-tap-highlight-color: transparent;
-}
-.po-w-btn:hover { background: rgba(255,255,255,0.10); }
-.po-w-btn:active { transform: scale(0.94); }
-.po-reps-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(48px, 1fr));
-  gap: 6px;
-  width: 100%;
-}
-.po-reps-pill {
-  padding: 12px 0; border: 1px solid var(--border);
-  background: rgba(0,0,0,0.28); color: var(--text-2);
-  border-radius: 8px; cursor: pointer;
-  font-family: inherit; font-size: 13px; font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  -webkit-tap-highlight-color: transparent;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
-}
-.po-reps-pill:hover { background: rgba(255,255,255,0.06); color: var(--text-1); }
-.po-reps-pill.active {
-  background: linear-gradient(180deg, #ffffff 0%, #e8e5dd 100%);
-  color: #0a0a0b; border-color: transparent;
-  font-weight: 800;
-}
-
 /* ----- Primary button ----- */
 .po-btn-primary {
   width: 100%; padding: 14px;
@@ -607,6 +573,10 @@ img, video, canvas, svg { max-width: 100%; }
   -webkit-tap-highlight-color: transparent;
 }
 .po-add-row-btn:hover { background: rgba(255,255,255,0.05); color: var(--text-1); }
+.po-set-ex-body { flex: 1; min-width: 0; }
+.po-set-ex-name { font-size: 13px; color: var(--text-1); font-weight: 600; }
+.po-set-ex-meta { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+.po-mini-btn.is-edit:hover { color: var(--text-1); }
 
 /* Rotation editor list */
 .rot-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
@@ -676,16 +646,10 @@ img, video, canvas, svg { max-width: 100%; }
     min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
 
-  /* Exercise picker */
-  .po-exercise-bar { gap: 6px; }
-  .po-ex-select { padding: 11px 10px; padding-right: 30px; font-size: 13px; }
-  .po-btn-icon { width: 38px; height: 38px; min-width: 38px; }
-
-  /* Stack weight + reps vertically so every rep button fits the screen */
-  .po-log-grid { grid-template-columns: 1fr; gap: 14px; }
-  .po-reps-row { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; }
-  .po-reps-pill { padding: 14px 0; font-size: 14px; min-width: 0; }
-  .po-w-btn { min-width: 44px; padding: 0 10px; font-size: 18px; }
+  /* Today's workout exercise rows */
+  .po-ex-row-inputs { grid-template-columns: 1fr 1fr auto; gap: 6px; }
+  .po-ex-w, .po-ex-r { padding: 10px 6px; font-size: 14px; }
+  .po-ex-log-btn { padding: 0 12px; font-size: 12px; }
 
   /* Stats — 3 narrow boxes can squeeze on a 360px iPhone; let them shrink */
   .po-stats-row { gap: 6px; }
@@ -702,8 +666,6 @@ img, video, canvas, svg { max-width: 100%; }
 
   /* Today's / Past workouts — tighter rows, allow text to wrap */
   .po-tw { padding: 14px; }
-  .po-tw-row { gap: 8px; }
-  .po-tw-row-name { min-width: 0; word-break: break-word; }
 
   /* Progress photos grid — match the available width */
   .wt-photo-grid { gap: 8px; }
@@ -717,7 +679,6 @@ img, video, canvas, svg { max-width: 100%; }
 @media (max-width: 360px) {
   .po-shell { padding-left: 8px; padding-right: 8px; }
   .po-title { font-size: 17px; }
-  .po-reps-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
 /* Today's Workout + Past Workouts */
@@ -764,30 +725,6 @@ img, video, canvas, svg { max-width: 100%; }
   background: rgba(110,231,183,0.16);
   color: var(--good);
 }
-.po-tw-list {
-  list-style: none; margin: 0; padding: 0;
-  display: flex; flex-direction: column; gap: 6px;
-}
-.po-tw-row {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 10px 12px;
-  background: rgba(255,255,255,0.025);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  font-size: 13px;
-}
-.po-tw-row-name { font-weight: 600; color: var(--text-1); }
-.po-tw-row-meta {
-  font-size: 11px; color: var(--text-3);
-  font-family: var(--font-mono);
-  font-variant-numeric: tabular-nums;
-}
-.po-tw-empty {
-  text-align: center; padding: 14px 0;
-  font-size: 12px; color: var(--text-3); font-style: italic;
-}
-.po-tw-empty.hidden { display: none; }
-
 .po-tw-past-toggle {
   width: 100%; margin-top: 10px;
   display: flex; align-items: center; justify-content: space-between;
@@ -1098,109 +1035,10 @@ img, video, canvas, svg { max-width: 100%; }
       </div>
     </div>
 
-    <!-- Exercise -->
-    <div class="po-sub-section">
-      <div class="po-sub-title">Exercise</div>
-      <div class="po-exercise-bar">
-        <select class="po-ex-select" id="exSelect"></select>
-        <button class="po-btn-icon" id="addExBtn" title="Add exercise" aria-label="Add">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        </button>
-        <button class="po-btn-icon" id="editExBtn" title="Edit / delete" aria-label="Edit">
-          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
-        </button>
-      </div>
-      <div class="po-no-ex" id="noExMsg" style="display:none">No exercises here yet. Tap <strong>+</strong> to add one.</div>
-    </div>
-
-    <!-- Log a set -->
-    <div class="po-sub-section">
-      <div class="po-sub-title">Log today's top set</div>
-      <div class="po-bw-banner" id="bwBanner">Bodyweight — log reps only</div>
-      <div class="po-last-set" id="lastSet">
-        <span class="po-last-label">Last time</span>
-        <span class="po-last-value" id="lastSetValue"></span>
-        <span class="po-last-meta" id="lastSetMeta"></span>
-      </div>
-      <div class="po-log-grid" id="logGrid">
-        <div class="po-field" id="weightField">
-          <label id="weightLabel">Weight (kg)</label>
-          <div class="po-weight-row">
-            <button class="po-w-btn" id="weightDownBtn" type="button">−</button>
-            <input type="number" id="weightInput" step="0.5" inputmode="decimal" placeholder="0">
-            <button class="po-w-btn" id="weightUpBtn" type="button">+</button>
-          </div>
-        </div>
-        <div class="po-field">
-          <label>Reps</label>
-          <div class="po-reps-row" id="repsRow" data-value="8">
-            <button type="button" class="po-reps-pill" data-v="4">4</button>
-            <button type="button" class="po-reps-pill" data-v="5">5</button>
-            <button type="button" class="po-reps-pill" data-v="6">6</button>
-            <button type="button" class="po-reps-pill" data-v="7">7</button>
-            <button type="button" class="po-reps-pill active" data-v="8">8</button>
-            <button type="button" class="po-reps-pill" data-v="9">9</button>
-            <button type="button" class="po-reps-pill" data-v="10">10</button>
-            <button type="button" class="po-reps-pill" data-v="11">11</button>
-            <button type="button" class="po-reps-pill" data-v="12">12</button>
-          </div>
-        </div>
-      </div>
-      <button class="po-btn-primary" id="logBtn">Log set</button>
-    </div>
-
-    <!-- Prescription -->
-    <div class="po-sub-section">
-      <div class="po-sub-title">Next session</div>
-      <div id="rxWrap"></div>
-    </div>
-
-    <!-- Stats -->
-    <div class="po-sub-section">
-      <div class="po-sub-title">Stats</div>
-      <div class="po-stats-row">
-        <div class="po-stat-box">
-          <div class="po-stat-label" id="oneRmLabel">Est. 1RM</div>
-          <div class="po-stat-val" id="oneRm">—<span class="po-unit" id="oneRmUnit">kg</span></div>
-        </div>
-        <div class="po-stat-box">
-          <div class="po-stat-label">Best set</div>
-          <div class="po-stat-val" id="bestSet">—</div>
-        </div>
-        <div class="po-stat-box">
-          <div class="po-stat-label">Sessions</div>
-          <div class="po-stat-val" id="sessionCount">—</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Trend -->
-    <div class="po-sub-section">
-      <div class="po-sub-title">Trend (last 10 sessions)</div>
-      <div class="po-spark-wrap">
-        <svg class="po-spark-svg" id="sparkline" viewBox="0 0 300 60" preserveAspectRatio="none">
-          <defs>
-            <linearGradient id="sparkGrad" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0%" stop-color="rgba(255,255,255,0.18)"/>
-              <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
-            </linearGradient>
-          </defs>
-        </svg>
-        <div class="po-spark-empty" id="sparkEmpty">Need 2+ sessions for trend</div>
-      </div>
-    </div>
-
-    <!-- History -->
-    <div class="po-sub-section">
-      <div class="po-sub-title">History</div>
-      <div id="historyCard">
-        <div class="po-empty">No logs yet.</div>
-      </div>
-    </div>
-
-    <!-- Today's Workout — every set logged today, grouped by exercise.
-         "Mark done" stamps the day so the past-workouts list shows it
-         as a completed session. -->
+    <!-- Today's Workout — every exercise for the selected day, with an
+         inline weight + reps input so the whole session can be logged
+         from this one list. Tap an exercise's name to see its coach
+         suggestion, stats, trend and history. -->
     <div class="po-sub-section">
       <div class="po-sub-title">Today's workout</div>
       <div class="po-tw" id="poTw">
@@ -1216,8 +1054,8 @@ img, video, canvas, svg { max-width: 100%; }
           </div>
           <button class="po-tw-done-btn" id="poTwDoneBtn" type="button">Mark workout done</button>
         </div>
-        <ul class="po-tw-list" id="poTwList"></ul>
-        <div class="po-tw-empty" id="poTwEmpty">No sets logged today — log one above and it'll appear here.</div>
+        <div id="workoutExList"></div>
+        <div class="po-no-ex hidden" id="noExMsg">No exercises for this day yet — add some in Settings.</div>
       </div>
 
       <button type="button" class="po-tw-past-toggle" id="poTwPastToggle" aria-expanded="false">
@@ -1312,6 +1150,70 @@ img, video, canvas, svg { max-width: 100%; }
     </div>
 
   </div>
+
+  <!-- Exercise detail — coach suggestion, stats, trend, history for
+       whichever exercise was tapped in Today's Workout. -->
+  <div class="wt-overlay" id="exDetailOverlay" aria-hidden="true">
+    <div class="wt-overlay-inner">
+      <div class="wt-overlay-h">
+        <button class="wt-back" id="exDetailBack" aria-label="Back">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
+        <div class="wt-overlay-title" id="exDetailTitle">Exercise</div>
+      </div>
+
+      <div class="po-last-set" id="lastSet">
+        <span class="po-last-label">Last time</span>
+        <span class="po-last-value" id="lastSetValue"></span>
+        <span class="po-last-meta" id="lastSetMeta"></span>
+      </div>
+
+      <div class="po-sub-section">
+        <div class="po-sub-title">Next session</div>
+        <div id="rxWrap"></div>
+      </div>
+
+      <div class="po-sub-section">
+        <div class="po-sub-title">Stats</div>
+        <div class="po-stats-row">
+          <div class="po-stat-box">
+            <div class="po-stat-label" id="oneRmLabel">Est. 1RM</div>
+            <div class="po-stat-val" id="oneRm">—<span class="po-unit" id="oneRmUnit">kg</span></div>
+          </div>
+          <div class="po-stat-box">
+            <div class="po-stat-label">Best set</div>
+            <div class="po-stat-val" id="bestSet">—</div>
+          </div>
+          <div class="po-stat-box">
+            <div class="po-stat-label">Sessions</div>
+            <div class="po-stat-val" id="sessionCount">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="po-sub-section">
+        <div class="po-sub-title">Trend (last 10 sessions)</div>
+        <div class="po-spark-wrap">
+          <svg class="po-spark-svg" id="sparkline" viewBox="0 0 300 60" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="sparkGrad" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stop-color="rgba(255,255,255,0.18)"/>
+                <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <div class="po-spark-empty" id="sparkEmpty">Need 2+ sessions for trend</div>
+        </div>
+      </div>
+
+      <div class="po-sub-section">
+        <div class="po-sub-title">History</div>
+        <div id="historyCard">
+          <div class="po-empty">No logs yet.</div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Add / Edit Exercise Modal -->
@@ -1390,6 +1292,12 @@ img, video, canvas, svg { max-width: 100%; }
       <h4>Days</h4>
       <div class="po-set-list" id="setDays"></div>
       <button class="po-add-row-btn" id="setAddDay">+ Add day</button>
+    </div>
+
+    <div class="po-set-section">
+      <h4>Exercises</h4>
+      <div class="po-set-list" id="setExercises"></div>
+      <button class="po-add-row-btn" id="setAddEx">+ Add exercise</button>
     </div>
 
     <div class="po-set-section">
@@ -1538,44 +1446,63 @@ img, video, canvas, svg { max-width: 100%; }
       });
     });
   }
-  function renderSelect() {
-    const sel = $('exSelect');
+  // Renders one row per exercise for the currently filtered day, each
+  // with its own weight + reps inputs so a whole session can be logged
+  // from this single list. Tapping the name opens the exercise detail
+  // overlay (coach suggestion, stats, trend, history).
+  function renderWorkoutList() {
     const f = getFiltered();
-    const noMsg = $('noExMsg');
-    const editBtn = $('editExBtn');
-    const logBtn = $('logBtn');
+    const container = $('workoutExList');
+    const emptyMsg = $('noExMsg');
     if (!f.length) {
-      sel.innerHTML = '<option>—</option>';
-      sel.disabled = true; editBtn.disabled = true; logBtn.disabled = true;
-      noMsg.style.display = 'block'; state.currentEx = null;
+      container.innerHTML = '';
+      emptyMsg.classList.remove('hidden');
       return;
     }
-    sel.disabled = false; editBtn.disabled = false; logBtn.disabled = false;
-    noMsg.style.display = 'none';
-    if (!f.find(e => e.id === state.currentEx)) state.currentEx = f[0].id;
-    sel.innerHTML = f.map(e => {
-      const wLbl = e.bw ? ' · BW' : (e.startWeight ? ' · ' + e.startWeight + unit() : '');
-      return '<option value="' + e.id + '"' + (e.id === state.currentEx ? ' selected' : '') + '>' + escape(e.name) + wLbl + '</option>';
+    emptyMsg.classList.add('hidden');
+    const todayKey = wtDateKey(new Date());
+    container.innerHTML = f.map(ex => {
+      const allLogs = state.logs[ex.id] || [];
+      const todayLogs = allLogs.filter(l => l.date.slice(0, 10) === todayKey);
+      const lastAny = allLogs[allLogs.length - 1];
+      let metaStr;
+      if (todayLogs.length) {
+        const top = ex.bw
+          ? Math.max.apply(null, todayLogs.map(s => s.reps)) + ' reps'
+          : Math.max.apply(null, todayLogs.map(s => s.weight)) + unit();
+        metaStr = todayLogs.length + ' set' + (todayLogs.length === 1 ? '' : 's') + ' · top ' + top;
+      } else {
+        metaStr = 'Not logged yet';
+      }
+      const weightInputHtml = ex.bw ? '' :
+        '<input type="number" class="po-ex-w" step="' + (ex.step || 2.5) + '" inputmode="decimal" placeholder="' + unit() + '" value="' + (lastAny ? lastAny.weight : (ex.startWeight || '')) + '">';
+      return '<div class="po-ex-row" data-ex-id="' + ex.id + '">'
+        + '<button type="button" class="po-ex-row-name" data-action="detail">'
+        +   '<span class="po-ex-row-title">' + escape(ex.name) + '</span>'
+        +   '<span class="po-ex-row-meta">' + metaStr + '</span>'
+        + '</button>'
+        + '<div class="po-ex-row-inputs' + (ex.bw ? ' po-bw-mode' : '') + '">'
+        +   weightInputHtml
+        +   '<input type="number" class="po-ex-r" inputmode="numeric" placeholder="' + ex.repMin + '-' + ex.repMax + '">'
+        +   '<button type="button" class="po-ex-log-btn" data-action="log">Log</button>'
+        + '</div>'
+      + '</div>';
     }).join('');
   }
-  function renderForm() {
-    const ex = getCurrentEx();
-    const banner = $('bwBanner');
-    const wField = $('weightField');
-    const oneRmLbl = $('oneRmLabel');
-    const grid = $('logGrid');
-    $('weightLabel').textContent = 'Weight (' + unit() + ')';
-    if (ex && ex.bw) {
-      banner.classList.add('show');
-      wField.style.display = 'none';
-      grid.classList.add('po-bw-mode');
-      oneRmLbl.textContent = 'Best reps';
-    } else {
-      banner.classList.remove('show');
-      wField.style.display = '';
-      grid.classList.remove('po-bw-mode');
-      oneRmLbl.textContent = 'Est. 1RM';
-    }
+  function openExerciseDetail(exId) {
+    const ex = state.exercises.find(x => x.id === exId);
+    if (!ex) return;
+    state.currentEx = exId;
+    saveState();
+    $('exDetailTitle').textContent = ex.name;
+    $('oneRmLabel').textContent = ex.bw ? 'Best reps' : 'Est. 1RM';
+    renderLastSet(); renderRx(); renderStats(); renderSparkline(); renderHistory();
+    $('exDetailOverlay').classList.add('is-open');
+    $('exDetailOverlay').setAttribute('aria-hidden', 'false');
+  }
+  function closeExerciseDetail() {
+    $('exDetailOverlay').classList.remove('is-open');
+    $('exDetailOverlay').setAttribute('aria-hidden', 'true');
   }
   function renderLastSet() {
     const wrap = $('lastSet');
@@ -1736,54 +1663,13 @@ img, video, canvas, svg { max-width: 100%; }
     splitEl.classList.toggle('is-rest', isRestName(split.name));
   }
 
-  // Build the rep buttons based on the current exercise's repMin/repMax.
-  // Always spans repMin → repMax + 2 (a small buffer for over-performing
-  // sets that trigger the upgrade signal), capped at 16 buttons total so
-  // wide ranges don't break the mobile layout.
-  function renderRepsRow() {
-    const row = document.getElementById('repsRow');
-    if (!row) return;
-    const ex = getCurrentEx();
-    let repMin, repMax;
-    if (ex) {
-      repMin = Math.max(1, parseInt(ex.repMin, 10) || 1);
-      repMax = Math.max(repMin, parseInt(ex.repMax, 10) || repMin);
-    } else {
-      repMin = 4; repMax = 12;
-    }
-    const upper = Math.max(repMax + 2, repMin + 5);
-    const end = Math.min(upper, repMin + 15);
-
-    // Preserve the previously-selected rep if it still fits in the new
-    // range; otherwise default to the target (repMax).
-    const prev = parseInt(row.dataset.value, 10);
-    const active = (prev >= repMin && prev <= end) ? prev : repMax;
-
-    let html = '';
-    for (let i = repMin; i <= end; i++) {
-      html += '<button type="button" class="po-reps-pill' +
-        (i === active ? ' active' : '') +
-        '" data-v="' + i + '">' + i + '</button>';
-    }
-    row.innerHTML = html;
-    row.dataset.value = String(active);
-  }
-
   function renderAll() {
     renderDayPill();
     renderTitle();
-    renderFilters(); renderSelect(); renderForm(); renderLastSet();
-    renderRepsRow();
-    renderRx(); renderStats(); renderSparkline(); renderHistory();
+    renderFilters();
+    renderWorkoutList();
     renderTodaysWorkout();
     renderPastWorkouts();
-    // Pre-fill weight input with last logged weight (or starting weight)
-    const ex = getCurrentEx();
-    if (ex && !ex.bw) {
-      const logs = getLogs();
-      const w = logs.length ? logs[logs.length - 1].weight : (ex.startWeight || 0);
-      $('weightInput').value = w;
-    }
   }
 
   // ============================================================
@@ -1854,27 +1740,6 @@ img, video, canvas, svg { max-width: 100%; }
 
     $('poTwSetCount').textContent = sum.totalSets;
     $('poTwTotalVol').textContent = Math.round(sum.totalVol).toLocaleString() + ' ' + u + ' lifted';
-
-    const list = $('poTwList');
-    const empty = $('poTwEmpty');
-    if (sum.totalSets === 0) {
-      list.innerHTML = '';
-      empty.classList.remove('hidden');
-    } else {
-      empty.classList.add('hidden');
-      list.innerHTML = sum.perEx.map(e => {
-        const top = e.ex.bw
-          ? 'top ' + Math.max.apply(null, e.sets.map(s => s.reps)) + ' reps'
-          : 'top ' + Math.max.apply(null, e.sets.map(s => s.weight)) + u;
-        const meta = e.ex.bw
-          ? (e.sets.length + ' set' + (e.sets.length === 1 ? '' : 's') + ' · ' + top)
-          : (e.sets.length + ' set' + (e.sets.length === 1 ? '' : 's') + ' · ' + top + ' · ' + Math.round(e.vol) + u + ' total');
-        return '<li class="po-tw-row">'
-          + '<span class="po-tw-row-name">' + escape(e.ex.name) + '</span>'
-          + '<span class="po-tw-row-meta">' + meta + '</span>'
-          + '</li>';
-      }).join('');
-    }
 
     // Done button state
     const btn = $('poTwDoneBtn');
@@ -1957,52 +1822,48 @@ img, video, canvas, svg { max-width: 100%; }
     if (match) state.filterDay = match.id;
   })();
 
-  $('exSelect').addEventListener('change', e => {
-    state.currentEx = e.target.value; saveState(); renderAll();
-  });
-  $('weightDownBtn').addEventListener('click', () => {
-    const ex = getCurrentEx(); if (!ex || ex.bw) return;
-    const w = parseFloat($('weightInput').value) || 0;
-    $('weightInput').value = Math.max(0, w - (ex.step || 2.5));
-  });
-  $('weightUpBtn').addEventListener('click', () => {
-    const ex = getCurrentEx(); if (!ex || ex.bw) return;
-    const w = parseFloat($('weightInput').value) || 0;
-    $('weightInput').value = w + (ex.step || 2.5);
-  });
-  // Delegated click handler — reps row is regenerated per exercise via
-  // renderRepsRow(), so we listen on the container rather than the
-  // individual buttons.
-  $('repsRow').addEventListener('click', (e) => {
-    const p = e.target.closest('.po-reps-pill');
-    if (!p) return;
-    $('repsRow').querySelectorAll('.po-reps-pill').forEach(x => x.classList.remove('active'));
-    p.classList.add('active');
-    $('repsRow').dataset.value = p.dataset.v;
-  });
-  $('logBtn').addEventListener('click', () => {
-    const ex = getCurrentEx();
+  // Delegated click handler — rows are regenerated per filtered day via
+  // renderWorkoutList(), so we listen on the container rather than the
+  // individual rows.
+  $('workoutExList').addEventListener('click', (e) => {
+    const row = e.target.closest('.po-ex-row');
+    if (!row) return;
+    const exId = row.dataset.exId;
+    const ex = state.exercises.find(x => x.id === exId);
     if (!ex) return;
-    const reps = parseInt($('repsRow').dataset.value, 10) || 0;
-    if (reps <= 0) { alert('Pick a rep count.'); return; }
-    const w = ex.bw ? 0 : (parseFloat($('weightInput').value) || 0);
-    if (!ex.bw && w <= 0) { alert('Enter a weight.'); return; }
-    const arr = state.logs[ex.id] || [];
-    arr.push({ weight: w, reps: reps, date: new Date().toISOString() });
-    state.logs[ex.id] = arr;
-    saveState(); renderAll();
-    // Tiny pulse on the button so the user feels the save
-    const btn = $('logBtn');
-    btn.style.transition = 'transform 0.15s';
-    btn.style.transform = 'scale(0.96)';
-    setTimeout(() => { btn.style.transform = ''; }, 160);
+    if (e.target.closest('[data-action="detail"]')) {
+      openExerciseDetail(exId);
+      return;
+    }
+    if (e.target.closest('[data-action="log"]')) {
+      const repsInput = row.querySelector('.po-ex-r');
+      const weightInput = row.querySelector('.po-ex-w');
+      const reps = parseInt(repsInput.value, 10) || 0;
+      if (reps <= 0) { alert('Enter a rep count.'); return; }
+      const w = ex.bw ? 0 : (parseFloat(weightInput.value) || 0);
+      if (!ex.bw && w <= 0) { alert('Enter a weight.'); return; }
+      const arr = state.logs[ex.id] || [];
+      arr.push({ weight: w, reps: reps, date: new Date().toISOString() });
+      state.logs[ex.id] = arr;
+      saveState(); renderAll();
+    }
   });
+  $('exDetailBack').addEventListener('click', closeExerciseDetail);
 
   // ============================================================
   // EXERCISE MODAL (add / edit)
   // ============================================================
   let editingExId = null;
   let modalDay = null;
+  let exModalFromSettings = false;
+  function closeExModal() {
+    $('exModalBg').classList.remove('show');
+    if (exModalFromSettings) {
+      exModalFromSettings = false;
+      renderExerciseSettings();
+      $('setModalBg').classList.add('show');
+    }
+  }
   function renderModalSegs() {
     $('exDaySeg').innerHTML = state.days.map(d =>
       '<button data-day="' + d.id + '" class="' + (modalDay === d.id ? 'active' : '') + '">' + escape(d.name) + '</button>'
@@ -2047,12 +1908,7 @@ img, video, canvas, svg { max-width: 100%; }
     $('exStepField').style.display = isBw ? 'none' : '';
   }
   $('exBw').addEventListener('change', toggleBwFields);
-  $('addExBtn').addEventListener('click', () => openExModal('add'));
-  $('editExBtn').addEventListener('click', () => {
-    const ex = getCurrentEx();
-    if (ex) openExModal('edit', ex);
-  });
-  $('exModalCancel').addEventListener('click', () => $('exModalBg').classList.remove('show'));
+  $('exModalCancel').addEventListener('click', closeExModal);
   $('exModalSave').addEventListener('click', () => {
     const name = $('exName').value.trim();
     if (!name) { alert('Name is required.'); return; }
@@ -2073,11 +1929,9 @@ img, video, canvas, svg { max-width: 100%; }
     } else {
       const ex = Object.assign({ id: uid() }, data);
       state.exercises.push(ex);
-      state.currentEx = ex.id;
-      state.filterDay = modalDay;
     }
     saveState();
-    $('exModalBg').classList.remove('show');
+    closeExModal();
     renderAll();
   });
   $('exDelete').addEventListener('click', () => {
@@ -2088,7 +1942,7 @@ img, video, canvas, svg { max-width: 100%; }
     if (state.currentEx === editingExId) state.currentEx = null;
     editingExId = null;
     saveState();
-    $('exModalBg').classList.remove('show');
+    closeExModal();
     renderAll();
   });
 
@@ -2218,6 +2072,35 @@ img, video, canvas, svg { max-width: 100%; }
         saveState(); renderSettings(); renderAll();
       });
     });
+    renderExerciseSettings();
+  }
+  function renderExerciseSettings() {
+    const list = $('setExercises');
+    if (!state.exercises.length) {
+      list.innerHTML = '<div class="po-no-ex">No exercises yet — add one below.</div>';
+      return;
+    }
+    list.innerHTML = state.exercises.map(ex => {
+      const meta = dayName(ex.day) + (ex.bw
+        ? ' · bodyweight'
+        : ' · ' + (ex.startWeight || 0) + unit() + ' · ' + ex.repMin + '-' + ex.repMax + ' reps');
+      return '<div class="po-set-row" data-id="' + ex.id + '">'
+        + '<div class="po-set-ex-body">'
+        +   '<div class="po-set-ex-name">' + escape(ex.name) + '</div>'
+        +   '<div class="po-set-ex-meta">' + escape(meta) + '</div>'
+        + '</div>'
+        + '<button class="po-mini-btn is-edit" data-action="edit" aria-label="Edit">✎</button>'
+        + '</div>';
+    }).join('');
+    list.querySelectorAll('.po-set-row').forEach(row => {
+      row.querySelector('[data-action="edit"]').addEventListener('click', () => {
+        const ex = state.exercises.find(x => x.id === row.dataset.id);
+        if (!ex) return;
+        exModalFromSettings = true;
+        $('setModalBg').classList.remove('show');
+        openExModal('edit', ex);
+      });
+    });
   }
   $('settingsBtn').addEventListener('click', () => {
     renderSettings();
@@ -2240,6 +2123,11 @@ img, video, canvas, svg { max-width: 100%; }
     const id = 'd_' + Date.now();
     state.days.push({ id, name });
     saveState(); renderSettings(); renderAll();
+  });
+  $('setAddEx').addEventListener('click', () => {
+    exModalFromSettings = true;
+    $('setModalBg').classList.remove('show');
+    openExModal('add');
   });
 
   // Export / Import / Reset
