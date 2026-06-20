@@ -45,19 +45,20 @@ const CONFIG = {
   // to its name on the workout list, no matter what you logged before.
   hardRepCeiling: 15,
 
-  // Starter exercise list. Each one just needs a name and which day it
-  // belongs to. First-run defaults — once you add your own through
-  // Settings, this block stops mattering.
+  // Starter exercise list. Each one just needs a name and which day(s)
+  // it belongs to — an exercise can list more than one day if you train
+  // it more than once a week. First-run defaults — once you add your
+  // own through Settings, this block stops mattering.
   defaultExercises: [
-    { name: "Bench press",       day: "push" },
-    { name: "Overhead press",    day: "push" },
-    { name: "Tricep pushdown",   day: "push" },
-    { name: "Pull-ups",          day: "pull" },
-    { name: "Barbell row",       day: "pull" },
-    { name: "Bicep curl",        day: "pull" },
-    { name: "Back squat",        day: "legs" },
-    { name: "Romanian deadlift", day: "legs" },
-    { name: "Leg press",         day: "legs" }
+    { name: "Bench press",       days: ["push"] },
+    { name: "Overhead press",    days: ["push"] },
+    { name: "Tricep pushdown",   days: ["push"] },
+    { name: "Pull-ups",          days: ["pull"] },
+    { name: "Barbell row",       days: ["pull"] },
+    { name: "Bicep curl",        days: ["pull"] },
+    { name: "Back squat",        days: ["legs"] },
+    { name: "Romanian deadlift", days: ["legs"] },
+    { name: "Leg press",         days: ["legs"] }
   ]
 };
 </script>
@@ -278,6 +279,10 @@ img, video, canvas, svg { max-width: 100%; }
   border-radius: 12px;
   margin-bottom: 8px;
 }
+.po-ex-row.needs-increase {
+  background: rgba(110,231,183,0.08);
+  border-color: rgba(110,231,183,0.30);
+}
 .po-ex-row-name {
   display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
   background: transparent; border: none; padding: 0;
@@ -379,20 +384,21 @@ img, video, canvas, svg { max-width: 100%; }
   outline: none; border-color: rgba(255,255,255,0.40);
   box-shadow: 0 0 0 3px rgba(255,255,255,0.06);
 }
-.po-ex-day-select {
-  width: 100%;
-  padding: 12px 36px 12px 14px;
-  border: 1px solid var(--border);
-  background: rgba(0,0,0,0.28);
-  color: var(--text-1); border-radius: 12px;
-  font-family: inherit; font-size: 15px; font-weight: 600;
-  appearance: none; -webkit-appearance: none;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path d='M2 4l4 4 4-4' stroke='%2387847B' stroke-width='1.5' fill='none' stroke-linecap='round'/></svg>");
-  background-repeat: no-repeat; background-position: right 14px center;
+.po-ex-day-pills {
+  display: flex; flex-wrap: wrap; gap: 6px;
 }
-.po-ex-day-select:focus {
-  outline: none; border-color: rgba(255,255,255,0.40);
-  box-shadow: 0 0 0 3px rgba(255,255,255,0.06);
+.po-ex-day-pill {
+  padding: 9px 14px; border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,0.28); color: var(--text-2);
+  font-family: inherit; font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: all 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.po-ex-day-pill:hover { border-color: var(--border-strong); color: var(--text-1); }
+.po-ex-day-pill.active {
+  background: linear-gradient(180deg, #ffffff 0%, #e8e5dd 100%);
+  border-color: transparent; color: #0a0a0b;
 }
 /* ----- Primary button ----- */
 .po-btn-primary {
@@ -1184,8 +1190,8 @@ img, video, canvas, svg { max-width: 100%; }
       <input type="text" id="exName" placeholder="e.g. Incline DB press">
     </div>
     <div class="po-field">
-      <label style="font-size:11px;color:var(--text-3);font-weight:700;letter-spacing:0.04em;text-transform:uppercase">Workout day</label>
-      <select class="po-ex-day-select" id="exDaySelect"></select>
+      <label style="font-size:11px;color:var(--text-3);font-weight:700;letter-spacing:0.04em;text-transform:uppercase">Workout day(s)</label>
+      <div class="po-ex-day-pills" id="exDayPills"></div>
     </div>
     <div class="po-modal-actions">
       <button class="po-btn-secondary" id="exModalCancel">Cancel</button>
@@ -1279,6 +1285,14 @@ img, video, canvas, svg { max-width: 100%; }
     s.units = s.units || CONFIG.units || 'kg';
     s.days  = (Array.isArray(s.days)  && s.days.length)  ? s.days  : CONFIG.days.slice();
     s.exercises = Array.isArray(s.exercises) ? s.exercises : buildDefaultExercises();
+    // Exercises used to belong to a single day (ex.day). Migrate to a
+    // `days` array so one exercise can be assigned to multiple days.
+    s.exercises.forEach(ex => {
+      if (!Array.isArray(ex.days) || !ex.days.length) {
+        ex.days = ex.day ? [ex.day] : [];
+      }
+      delete ex.day;
+    });
     s.logs = (s.logs && typeof s.logs === 'object') ? s.logs : {};
     s.filterDay = s.filterDay || s.days[0].id;
     // Split rotation lives in state so the user can edit it via the pill modal.
@@ -1321,7 +1335,7 @@ img, video, canvas, svg { max-width: 100%; }
   function dayName(id) { const d = state.days.find(x => x.id === id); return d ? d.name : id; }
   function estimate1RM(w, r) { if (r < 2) return w; return w * (1 + r / 30); }
   function getFiltered() {
-    return state.exercises.filter(e => e.day === state.filterDay);
+    return state.exercises.filter(e => e.days.includes(state.filterDay));
   }
   function getCurrentEx() {
     const f = getFiltered();
@@ -1391,9 +1405,9 @@ img, video, canvas, svg { max-width: 100%; }
       const metaStr = todayEntry
         ? 'Logged: ' + todayEntry.weight + unit() + ' × ' + todayEntry.reps
         : 'Not logged yet';
-      const flagBadge = needsWeightIncrease(todayEntry ? [todayEntry] : allLogs)
-        ? '<span class="po-ex-badge">↑ Add weight</span>' : '';
-      return '<div class="po-ex-row' + (isLocked ? ' is-logged' : '') + '" data-ex-id="' + ex.id + '">'
+      const flagged = needsWeightIncrease(todayEntry ? [todayEntry] : allLogs);
+      const flagBadge = flagged ? '<span class="po-ex-badge">↑ Add weight</span>' : '';
+      return '<div class="po-ex-row' + (isLocked ? ' is-logged' : '') + (flagged ? ' needs-increase' : '') + '" data-ex-id="' + ex.id + '">'
         + '<button type="button" class="po-ex-row-name" data-action="detail">'
         +   '<span class="po-ex-row-title">' + escape(ex.name) + flagBadge + '</span>'
         +   '<span class="po-ex-row-meta">' + metaStr + '</span>'
@@ -1801,7 +1815,7 @@ img, video, canvas, svg { max-width: 100%; }
   // EXERCISE MODAL (add / edit)
   // ============================================================
   let editingExId = null;
-  let modalDay = null;
+  let modalDays = [];
   let exModalFromSettings = false;
   function closeExModal() {
     $('exModalBg').classList.remove('show');
@@ -1811,10 +1825,18 @@ img, video, canvas, svg { max-width: 100%; }
       $('setModalBg').classList.add('show');
     }
   }
-  function renderModalDaySelect() {
-    $('exDaySelect').innerHTML = state.days.map(d =>
-      '<option value="' + d.id + '"' + (modalDay === d.id ? ' selected' : '') + '>' + escape(d.name) + '</option>'
+  function renderModalDayPills() {
+    $('exDayPills').innerHTML = state.days.map(d =>
+      '<button type="button" class="po-ex-day-pill' + (modalDays.includes(d.id) ? ' active' : '') + '" data-day="' + d.id + '">' + escape(d.name) + '</button>'
     ).join('');
+    $('exDayPills').querySelectorAll('.po-ex-day-pill').forEach(b => {
+      b.addEventListener('click', () => {
+        const day = b.dataset.day;
+        if (modalDays.includes(day)) modalDays = modalDays.filter(x => x !== day);
+        else modalDays.push(day);
+        b.classList.toggle('active', modalDays.includes(day));
+      });
+    });
   }
   function openExModal(mode, ex) {
     editingExId = mode === 'edit' ? ex.id : null;
@@ -1822,22 +1844,21 @@ img, video, canvas, svg { max-width: 100%; }
     $('exDelete').style.display = mode === 'edit' ? 'block' : 'none';
     if (mode === 'edit') {
       $('exName').value = ex.name;
-      modalDay = ex.day;
+      modalDays = (ex.days || []).slice();
     } else {
       $('exName').value = '';
-      modalDay = state.filterDay;
+      modalDays = [state.filterDay];
     }
-    renderModalDaySelect();
+    renderModalDayPills();
     $('exModalBg').classList.add('show');
     setTimeout(() => $('exName').focus(), 60);
   }
-  $('exDaySelect').addEventListener('change', () => { modalDay = $('exDaySelect').value; });
   $('exModalCancel').addEventListener('click', closeExModal);
   $('exModalSave').addEventListener('click', () => {
     const name = $('exName').value.trim();
     if (!name) { alert('Name is required.'); return; }
-    if (!modalDay) { alert('Pick a day.'); return; }
-    const data = { name, day: modalDay };
+    if (!modalDays.length) { alert('Pick at least one day.'); return; }
+    const data = { name, days: modalDays.slice() };
     if (editingExId) {
       const ex = state.exercises.find(e => e.id === editingExId);
       if (ex) Object.assign(ex, data);
@@ -1996,7 +2017,7 @@ img, video, canvas, svg { max-width: 100%; }
       return;
     }
     list.innerHTML = state.exercises.map(ex => {
-      const meta = dayName(ex.day);
+      const meta = (ex.days || []).map(dayName).join(', ') || '—';
       return '<div class="po-set-row" data-id="' + ex.id + '">'
         + '<div class="po-set-ex-body">'
         +   '<div class="po-set-ex-name">' + escape(ex.name) + '</div>'

@@ -104,6 +104,10 @@ img, video, canvas, svg { max-width: 100%; }
   margin-bottom: 10px;
   overflow: hidden;
 }
+.card.needs-increase {
+  background: rgba(110,231,183,0.06);
+  border-color: rgba(110,231,183,0.30);
+}
 .an-ex-header {
   display: flex; align-items: center; gap: 10px;
   width: 100%; padding: 16px 18px;
@@ -326,8 +330,9 @@ function drawChart(canvas, ex, logs) {
 
 function renderExerciseCard(ex) {
   const logs = getLogsFor(ex.id);
-  const flagBadge = needsWeightIncrease(logs) ? '<span class="po-ex-badge">↑ Add weight</span>' : '';
-  return '<div class="card an-ex-card" data-ex-id="' + ex.id + '">'
+  const flagged = needsWeightIncrease(logs);
+  const flagBadge = flagged ? '<span class="po-ex-badge">↑ Add weight</span>' : '';
+  return '<div class="card an-ex-card' + (flagged ? ' needs-increase' : '') + '" data-ex-id="' + ex.id + '">'
     + '<button type="button" class="an-ex-header" data-action="toggle">'
     +   '<span class="an-ex-name">' + escape(ex.name) + flagBadge + '</span>'
     +   '<span class="an-ex-meta">' + logs.length + ' session' + (logs.length === 1 ? '' : 's') + '</span>'
@@ -397,7 +402,8 @@ function renderAll() {
     return;
   }
   const day = days.find(d => d.id === activeDay);
-  const dayExercises = exercises.filter(ex => ex.day === activeDay);
+  const dayExercises = exercises.filter(ex =>
+    Array.isArray(ex.days) ? ex.days.includes(activeDay) : ex.day === activeDay);
   const groups = dayExercises.length
     ? '<div class="an-day-group">'
       + '<div class="an-day-title">' + escape(day ? day.name : '') + '</div>'
