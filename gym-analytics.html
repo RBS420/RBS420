@@ -59,6 +59,27 @@ img, video, canvas, svg { max-width: 100%; }
 .an-back:hover { background: rgba(255,255,255,0.08); }
 .an-title { font-size: 22px; font-weight: 700; letter-spacing: -0.015em; margin: 0; }
 
+.an-day-seg {
+  display: flex;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 12px; padding: 4px; gap: 3px;
+  margin-bottom: 18px;
+}
+.an-day-seg-btn {
+  flex: 1; padding: 10px 8px; border: none; background: transparent;
+  color: var(--text-3); border-radius: 8px;
+  font-family: inherit; font-size: 12.5px; font-weight: 600;
+  cursor: pointer; transition: background 0.15s, color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.an-day-seg-btn:hover { color: var(--text-2); background: rgba(255,255,255,0.04); }
+.an-day-seg-btn.active {
+  background: linear-gradient(180deg, #ffffff 0%, #e8e5dd 100%);
+  color: #0a0a0b;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 4px 12px rgba(0,0,0,0.35);
+}
+
 .an-day-group { margin-bottom: 22px; }
 .an-day-title {
   display: flex; align-items: center; gap: 8px;
@@ -158,6 +179,8 @@ img, video, canvas, svg { max-width: 100%; }
 .po-hist-date { font-size: 11px; color: var(--text-3); font-family: var(--font-mono); }
 .po-hist-set { font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
 
+.hidden { display: none !important; }
+
 ::selection { background: rgba(255,255,255,0.18); }
 ::-webkit-scrollbar { width: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -174,6 +197,8 @@ img, video, canvas, svg { max-width: 100%; }
     </a>
     <h1 class="an-title">Analytics</h1>
   </div>
+
+  <div class="an-day-seg" id="anDaySeg"></div>
 
   <div id="anContent"></div>
 </div>
@@ -392,21 +417,61 @@ function renderExerciseCard(ex) {
     + '</div>';
 }
 
+// Same today-split calculation as gym.html's todaySplit(), so Analytics
+// opens on whichever day you'd actually be training today.
+function todaySplitName() {
+  try {
+    const rot = state.splitRotation;
+    if (!rot || !rot.length) return null;
+    const a = new Date(state.splitAnchor.date);
+    const t = new Date();
+    a.setHours(0,0,0,0); t.setHours(0,0,0,0);
+    const diffDays = Math.round((t - a) / 86400000);
+    const idx = ((state.splitAnchor.index + diffDays) % rot.length + rot.length) % rot.length;
+    return rot[idx];
+  } catch (e) { return null; }
+}
+function isRestName(name) { return /^rest\b/i.test(name || ''); }
+
+let activeDay = (() => {
+  const name = todaySplitName();
+  if (name && !isRestName(name)) {
+    const match = days.find(d => d.name.toLowerCase() === name.toLowerCase());
+    if (match) return match.id;
+  }
+  return days.length ? days[0].id : null;
+})();
+
+function renderDaySeg() {
+  const seg = document.getElementById('anDaySeg');
+  if (days.length < 2) { seg.classList.add('hidden'); return; }
+  seg.innerHTML = days.map(d =>
+    '<button type="button" class="an-day-seg-btn' + (d.id === activeDay ? ' active' : '') + '" data-day="' + d.id + '">' + escape(d.name) + '</button>'
+  ).join('');
+  seg.querySelectorAll('.an-day-seg-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeDay = btn.dataset.day;
+      seg.querySelectorAll('.an-day-seg-btn').forEach(b => b.classList.toggle('active', b.dataset.day === activeDay));
+      renderAll();
+    });
+  });
+}
+
 function renderAll() {
   const container = document.getElementById('anContent');
   if (!days.length || !exercises.length) {
     container.innerHTML = '<div class="an-empty">No workout data yet — log a few sets on the Fitness tab first.</div>';
     return;
   }
-  const groups = days.map(day => {
-    const dayExercises = exercises.filter(ex => ex.day === day.id);
-    if (!dayExercises.length) return '';
-    return '<div class="an-day-group">'
-      + '<div class="an-day-title">' + escape(day.name) + '</div>'
+  const day = days.find(d => d.id === activeDay);
+  const dayExercises = exercises.filter(ex => ex.day === activeDay);
+  const groups = dayExercises.length
+    ? '<div class="an-day-group">'
+      + '<div class="an-day-title">' + escape(day ? day.name : '') + '</div>'
       + dayExercises.map(renderExerciseCard).join('')
-      + '</div>';
-  }).join('');
-  container.innerHTML = groups || '<div class="an-empty">No exercises yet.</div>';
+      + '</div>'
+    : '';
+  container.innerHTML = groups || '<div class="an-empty">No exercises for this day yet.</div>';
 
   container.querySelectorAll('.an-ex-card').forEach(card => {
     const header = card.querySelector('.an-ex-header');
@@ -428,6 +493,7 @@ function renderAll() {
   });
 }
 
+renderDaySeg();
 renderAll();
 window.addEventListener('resize', () => {
   document.querySelectorAll('.an-ex-card.is-open').forEach(card => {
