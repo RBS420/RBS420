@@ -389,6 +389,20 @@ html, body { scrollbar-width: none; -ms-overflow-style: none; }
   cursor: pointer; border-radius: 4px;
   padding: 2px 4px; margin: -2px -4px;
 }
+.nw-rating-badge {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 9px; font-weight: 700; letter-spacing: 0.03em;
+  padding: 2px 7px; border-radius: 999px;
+  text-transform: uppercase; white-space: nowrap;
+  background: rgba(255,255,255,0.06); color: var(--text-tertiary);
+}
+.nw-rating-badge.strongbuy  { background: rgba(110,231,183,0.20); color: #6EE7B7; }
+.nw-rating-badge.buy        { background: rgba(110,231,183,0.12); color: #6EE7B7; }
+.nw-rating-badge.hold       { background: rgba(251,191,36,0.16); color: #FBBF24; }
+.nw-rating-badge.sell       { background: rgba(255,138,138,0.12); color: #FF8A8A; }
+.nw-rating-badge.strongsell { background: rgba(255,138,138,0.20); color: #FF8A8A; }
+.nw-leg-rating { justify-self: end; }
 .nw-name-edit:hover, .nw-amt-edit:hover { background: rgba(255, 255, 255, 0.06); }
 .nw-del {
   background: none; border: none;
@@ -593,7 +607,7 @@ html, body { scrollbar-width: none; -ms-overflow-style: none; }
   display: flex; flex-direction: column; gap: 4px;
 }
 .nw-leg {
-  display: grid; grid-template-columns: 8px 1fr auto;
+  display: grid; grid-template-columns: 8px 1fr auto auto;
   gap: 8px; align-items: center;
   font-size: 11px;
   padding: 4px 6px;
@@ -707,7 +721,7 @@ html, body { scrollbar-width: none; -ms-overflow-style: none; }
 }
 .ord-add-grid {
   display: grid;
-  grid-template-columns: 1.6fr 1fr 0.8fr 1.1fr 1.1fr auto;
+  grid-template-columns: 1.6fr 1fr 1.1fr 1.1fr auto;
   gap: 6px; align-items: stretch;
   padding: 4px;
   background: rgba(0, 0, 0, 0.30);
@@ -730,14 +744,14 @@ html, body { scrollbar-width: none; -ms-overflow-style: none; }
 .ord-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .ord-input::placeholder { color: var(--text-tertiary); }
 .ord-input-cost { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
-.ord-input-ccy, .ord-input-from {
+.ord-input-from {
   background: rgba(255,255,255,0.04);
   border-radius: 8px;
   cursor: pointer; font-weight: 600;
   appearance: none; -webkit-appearance: none;
   text-align: center;
+  font-size: 16px;
 }
-.ord-input-from { font-size: 16px; }
 .ord-add-btn {
   padding: 0 14px;
   background: linear-gradient(180deg, #6EE7B7, #4ED4A0);
@@ -951,17 +965,6 @@ html, body { scrollbar-width: none; -ms-overflow-style: none; }
 .wish-input::placeholder { color: var(--text-tertiary); }
 .wish-input-name { flex: 2; min-width: 160px; }
 .wish-input-amt  { flex: 1; min-width: 80px; max-width: 110px; text-align: right; font-variant-numeric: tabular-nums; }
-.wish-input-ccy {
-  flex: 0 1 80px;
-  background: rgba(255,255,255,0.04);
-  border-radius: 9px;
-  color: var(--text-primary);
-  font-family: inherit; font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  appearance: none; -webkit-appearance: none;
-  text-align: center;
-}
 .wish-add-btn {
   padding: 0 18px;
   background: linear-gradient(180deg, #B794F4, #9F7DD4);
@@ -1375,7 +1378,6 @@ html, body { scrollbar-width: none; -ms-overflow-style: none; }
     text-align: left;
   }
   .ord-add-grid .ord-input-cost { text-align: right; }
-  .ord-add-grid .ord-input-ccy,
   .ord-add-grid .ord-input-from { text-align: center; }
   .ord-add-grid .ord-add-btn { text-align: center; }
 
@@ -1396,7 +1398,6 @@ html, body { scrollbar-width: none; -ms-overflow-style: none; }
     font-size: 16px !important;
   }
   .wish-add-row .wish-input-amt { text-align: right; }
-  .wish-add-row .wish-input-ccy { text-align: center; }
 
   /* ---------- Bigger close (×) and edit buttons in rows ---------- */
   .ord-card-x, .wish-row-x {
@@ -1595,17 +1596,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;margin-bottom:14px">
       <div>
         <div style="font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.04em;font-weight:500">Total net worth</div>
-        <div id="netWorthTotal" style="font-size:34px;font-weight:700;color:var(--text-primary);line-height:1.05;margin-top:2px">CHF 0</div>
+        <div id="netWorthTotal" style="font-size:34px;font-weight:700;color:var(--text-primary);line-height:1.05;margin-top:2px">$0</div>
         <div id="netWorthBreakdown" style="font-size:11px;color:var(--text-tertiary);margin-top:4px"></div>
-      </div>
-      <div style="display:flex;align-items:center;gap:6px">
-        <span style="font-size:11px;color:var(--text-tertiary)">CHF</span>
-        <select id="netWorthCurrency" style="background:var(--bg-card);color:var(--text-primary);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:16px;font-family:inherit;cursor:pointer">
-          <option value="CHF">CHF</option>
-          <option value="USD">USD</option>
-          <option value="EUR">EUR</option>
-          <option value="GBP">GBP</option>
-        </select>
       </div>
     </div>
 
@@ -1700,6 +1692,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
         <div id="stocksList" class="nw-list"></div>
         <div class="quick-add">
           <input type="text" placeholder="Stock / fund" id="stocksName" />
+          <input type="text" placeholder="Ticker (e.g. AAPL)" id="stocksTicker" style="max-width:120px" />
           <input type="number" placeholder="Value" id="stocksAmount" step="0.01" />
           <button class="quick-add-btn" id="stocksAddBtn">+</button>
         </div>
@@ -1737,7 +1730,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;margin-bottom:12px">
       <div>
         <div style="font-size:11px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.04em;font-weight:500">Monthly burn</div>
-        <div id="subsTotal" style="font-size:28px;font-weight:700;color:var(--text-primary);line-height:1.1;margin-top:2px">CHF 0 <span style="font-size:13px;color:var(--text-tertiary);font-weight:500">/ mo</span></div>
+        <div id="subsTotal" style="font-size:28px;font-weight:700;color:var(--text-primary);line-height:1.1;margin-top:2px">$0 <span style="font-size:13px;color:var(--text-tertiary);font-weight:500">/ mo</span></div>
         <div id="subsYearly" style="font-size:11px;color:var(--text-tertiary);margin-top:2px"></div>
       </div>
       <div id="subsCount" style="font-size:11px;color:var(--text-tertiary)"></div>
@@ -1747,12 +1740,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     <div class="quick-add" style="flex-wrap:wrap;gap:6px">
       <input type="text" placeholder="Service (e.g. Netflix)" id="subName" style="flex:1.5;min-width:120px" />
       <input type="number" placeholder="Amount" id="subAmount" step="0.01" style="flex:1;max-width:100px" />
-      <select id="subCurrency" style="padding:6px 10px;border:0.5px solid var(--border);border-radius:var(--radius-md);font-size:16px;font-family:inherit;background:var(--bg-card);color:var(--text-primary);max-width:90px">
-        <option value="CHF">CHF</option>
-        <option value="USD">USD</option>
-        <option value="EUR">EUR</option>
-        <option value="GBP">GBP</option>
-      </select>
       <select id="subPeriod" style="padding:6px 10px;border:0.5px solid var(--border);border-radius:var(--radius-md);font-size:16px;font-family:inherit;background:var(--bg-card);color:var(--text-primary);max-width:100px">
         <option value="monthly">Monthly</option>
         <option value="yearly">Yearly</option>
@@ -1784,12 +1771,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     <div class="ord-add-grid">
       <input type="text"   id="ordName"   placeholder="Item (e.g. New iPhone)" class="ord-input ord-input-name">
       <input type="number" id="ordCost"   placeholder="Cost" step="0.01" class="ord-input ord-input-cost">
-      <select id="ordCurrency" class="ord-input ord-input-ccy">
-        <option value="CHF">CHF</option>
-        <option value="USD">USD</option>
-        <option value="EUR">EUR</option>
-        <option value="GBP">GBP</option>
-      </select>
       <select id="ordFromCat" class="ord-input ord-input-from" title="Which net worth account this comes out of">
         <option value="">No accounts yet</option>
       </select>
@@ -1822,7 +1803,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     <div class="wish-hero-top">
       <div>
         <div class="wish-hero-eyebrow">WISHLIST TOTAL</div>
-        <div class="wish-hero-num" id="wishTotal">CHF 0</div>
+        <div class="wish-hero-num" id="wishTotal">$0</div>
       </div>
       <div class="wish-hero-pct-wrap">
         <div class="wish-hero-pct-label">% OF NET WORTH</div>
@@ -1841,12 +1822,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     <div class="wish-add-row">
       <input type="text"   id="wishName"   placeholder="Item name (e.g. New iPhone Pro Max)" class="wish-input wish-input-name">
       <input type="number" id="wishAmount" placeholder="Cost" step="0.01" class="wish-input wish-input-amt">
-      <select id="wishCurrency" class="wish-input wish-input-ccy">
-        <option value="CHF">CHF</option>
-        <option value="USD">USD</option>
-        <option value="EUR">EUR</option>
-        <option value="GBP">GBP</option>
-      </select>
       <button class="wish-add-btn" id="wishAddBtn" onclick="window.__addWish && window.__addWish()">+ Add</button>
     </div>
   </div>
@@ -1902,6 +1877,72 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   }
 
   // ============================================================
+  // STOCK RATINGS — analyst Strong Buy/Buy/Hold/Sell/Strong Sell
+  // consensus, pulled from Finnhub's free "recommendation trends"
+  // endpoint for any stock you give a ticker symbol.
+  //
+  // SETUP (2 minutes, free):
+  //   1. Go to finnhub.io and click "Get free API key"
+  //   2. Copy the API key from your dashboard
+  //   3. Paste it below, replacing the placeholder string
+  //
+  // If you leave the placeholder, stocks just show their ticker with
+  // no rating badge — everything else still works.
+  // ============================================================
+  const FINNHUB_API_KEY = 'PASTE-YOUR-FINNHUB-KEY-HERE';
+  const STOCK_RATING_CACHE_KEY = 'nw:stock_ratings';
+  const STOCK_RATING_TTL_MS = 24 * 60 * 60 * 1000; // refetch once a day per ticker
+
+  function loadRatingCache() { return storeGet(STOCK_RATING_CACHE_KEY) || {}; }
+  function saveRatingCache(cache) { storeSet(STOCK_RATING_CACHE_KEY, cache); }
+  function ratingKeyFromCounts(rec) {
+    if (!rec) return null;
+    const counts = {
+      strongbuy: rec.strongBuy || 0,
+      buy: rec.buy || 0,
+      hold: rec.hold || 0,
+      sell: rec.sell || 0,
+      strongsell: rec.strongSell || 0
+    };
+    let best = null, bestN = 0;
+    Object.keys(counts).forEach(k => { if (counts[k] > bestN) { bestN = counts[k]; best = k; } });
+    return best;
+  }
+  function ratingText(key) {
+    return { strongbuy: 'Strong Buy', buy: 'Buy', hold: 'Hold', sell: 'Sell', strongsell: 'Strong Sell' }[key] || '';
+  }
+  async function fetchStockRating(ticker) {
+    const cache = loadRatingCache();
+    const cached = cache[ticker];
+    if (cached && (Date.now() - cached.ts) < STOCK_RATING_TTL_MS) return cached.rating;
+    if (!FINNHUB_API_KEY || FINNHUB_API_KEY.indexOf('PASTE-') === 0) return null;
+    try {
+      const res = await fetch('https://finnhub.io/api/v1/stock/recommendation?symbol=' + encodeURIComponent(ticker) + '&token=' + FINNHUB_API_KEY);
+      const data = await res.json();
+      const latest = Array.isArray(data) && data.length ? data[0] : null;
+      const rating = ratingKeyFromCounts(latest);
+      cache[ticker] = { ts: Date.now(), rating };
+      saveRatingCache(cache);
+      return rating;
+    } catch (e) { return null; }
+  }
+  function applyRatingToBadge(badgeEl, ticker, ratingKey) {
+    badgeEl.classList.remove('loading', 'strongbuy', 'buy', 'hold', 'sell', 'strongsell');
+    if (ratingKey) badgeEl.classList.add(ratingKey);
+    badgeEl.textContent = ticker + (ratingKey ? ' · ' + ratingText(ratingKey) : '');
+  }
+  function renderStockRatingBadge(badgeEl, ticker) {
+    const cache = loadRatingCache();
+    const cached = cache[ticker];
+    if (cached && (Date.now() - cached.ts) < STOCK_RATING_TTL_MS) {
+      applyRatingToBadge(badgeEl, ticker, cached.rating);
+      return;
+    }
+    badgeEl.textContent = ticker + ' · …';
+    fetchStockRating(ticker).then(rating => applyRatingToBadge(badgeEl, ticker, rating));
+  }
+
+  // ============================================================
   // ORD_FROM_META — must be hoisted to the top of the IIFE.
   // renderOrders runs as part of the FIRST renderAllNetWorth call
   // (long before the ORDERS section is reached) and will TDZ-crash
@@ -1938,41 +1979,23 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   // ============================================================
   // NET WORTH (copied from the main dashboard, verbatim logic)
   // ============================================================
-  const CURRENCY_KEY = 'nw_currency';
   const NW_CATS = [
     { key: 'bank',   listId: 'bankList',   totalId: 'bankTotal',   nameId: 'bankName',   amtId: 'bankAmount',   addId: 'bankAddBtn' },
     { key: 'stocks', listId: 'stocksList', totalId: 'stocksTotal', nameId: 'stocksName', amtId: 'stocksAmount', addId: 'stocksAddBtn' },
     { key: 'crypto', listId: 'cryptoList', totalId: 'cryptoTotal', nameId: 'cryptoName', amtId: 'cryptoAmount', addId: 'cryptoAddBtn' },
     { key: 'other',  listId: 'otherList',  totalId: 'otherTotal',  nameId: 'otherName',  amtId: 'otherAmount',  addId: 'otherAddBtn' }
   ];
-  const currencyEl = document.getElementById('netWorthCurrency');
+  // Everything is USD-only now — no currency picker, no live exchange
+  // rates. These stay defined (frozen at 1:1) so any old entries saved
+  // with a non-CHF entered_currency before this change don't break.
+  const currencyEl = null;
   const netWorthTotal = document.getElementById('netWorthTotal');
   const netWorthBreakdown = document.getElementById('netWorthBreakdown');
-
-  let exchangeRates = { CHF: 1, USD: 1, EUR: 1, GBP: 1 };
-  async function loadExchangeRates() {
-    try {
-      const res = await fetch('https://open.er-api.com/v6/latest/CHF');
-      const data = await res.json();
-      if (data && data.rates) {
-        exchangeRates = {
-          CHF: 1,
-          USD: data.rates.USD || 1,
-          EUR: data.rates.EUR || 1,
-          GBP: data.rates.GBP || 1
-        };
-        renderAllNetWorth();
-        if (typeof renderSubs === 'function') renderSubs();
-      }
-    } catch (e) {}
-  }
-  loadExchangeRates();
+  const exchangeRates = { CHF: 1, USD: 1, EUR: 1, GBP: 1 };
 
   function fmtMoney(amountCHF) {
-    const symbol = currencyEl ? currencyEl.value : 'CHF';
-    const rate = exchangeRates[symbol] || 1;
-    const num = (Number(amountCHF) || 0) * rate;
-    return symbol + ' ' + num.toLocaleString('en-US', { minimumFractionDigits: num % 1 === 0 ? 0 : 2, maximumFractionDigits: 2 });
+    const num = Number(amountCHF) || 0;
+    return '$' + num.toLocaleString('en-US', { minimumFractionDigits: num % 1 === 0 ? 0 : 2, maximumFractionDigits: 2 });
   }
 
   function renderNetWorthCategory(cat) {
@@ -1990,6 +2013,13 @@ input[type="date"]::-webkit-calendar-picker-indicator {
       name.textContent = it.name;
       name.title = 'Tap to rename';
       name.addEventListener('click', () => beginNwNameEdit(name, items, idx, cat.key));
+      let badge = null;
+      if (cat.key === 'stocks' && it.ticker) {
+        badge = document.createElement('span');
+        badge.className = 'nw-rating-badge loading';
+        badge.textContent = it.ticker;
+        renderStockRatingBadge(badge, it.ticker);
+      }
       const amt = document.createElement('span');
       amt.className = 'nw-amt nw-amt-edit';
       amt.textContent = fmtMoney(it.amount);
@@ -2002,7 +2032,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
         if (removed) logActivity(cat.key, removed.name, -(Number(removed.amount) || 0), 'delete');
         renderAllNetWorth();
       });
-      row.appendChild(name); row.appendChild(amt); row.appendChild(del);
+      row.appendChild(name);
+      if (badge) row.appendChild(badge);
+      row.appendChild(amt); row.appendChild(del);
       list.appendChild(row);
     });
     document.getElementById(cat.totalId).textContent = fmtMoney(total);
@@ -2207,7 +2239,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
             key: cat.key + '::' + i,
             name: String(it.name || '(unnamed)'),
             color: meta.color,
-            value: v
+            value: v,
+            ticker: cat.key === 'stocks' ? (it.ticker || null) : null
           });
         }
       });
@@ -2232,7 +2265,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
       return;
     }
     empty.classList.add('hidden');
-    total.textContent = fmtMoney(grand).split(' ')[1] || fmtMoney(grand);
+    total.textContent = fmtMoney(grand);
     count.textContent = slices.length + ' slice' + (slices.length === 1 ? '' : 's');
 
     // Sort largest first
@@ -2253,12 +2286,19 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
     legend.innerHTML = slices.map(s => {
       const pct = ((s.value / sliceTotal) * 100).toFixed(1);
+      const ratingHtml = s.ticker
+        ? '<span class="nw-rating-badge loading nw-leg-rating" data-ticker="' + escapeHtml(s.ticker) + '">' + escapeHtml(s.ticker) + '</span>'
+        : '<span></span>';
       return '<div class="nw-leg" style="color:' + s.color + '">'
         + '<span class="nw-leg-dot" style="background:' + s.color + '"></span>'
         + '<span class="nw-leg-name">' + escapeHtml(s.name) + '</span>'
+        + ratingHtml
         + '<span class="nw-leg-pct">' + pct + '%</span>'
         + '</div>';
     }).join('');
+    legend.querySelectorAll('.nw-leg-rating').forEach(badgeEl => {
+      renderStockRatingBadge(badgeEl, badgeEl.dataset.ticker);
+    });
   }
 
   // Net-worth history chart
@@ -2385,38 +2425,32 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     const addBtn = document.getElementById(cat.addId);
     const nameInput = document.getElementById(cat.nameId);
     const amtInput = document.getElementById(cat.amtId);
+    const tickerInput = cat.key === 'stocks' ? document.getElementById('stocksTicker') : null;
     if (!addBtn) return;
     function doAdd() {
       const n = nameInput.value.trim();
       const a = parseFloat(amtInput.value);
       if (!n || isNaN(a)) return;
-      // Interpret the input in the CURRENTLY SELECTED display currency, then
-      // convert to CHF for storage. So if USD is selected and user types 40000,
-      // we store 40000 / USD-per-CHF rate — 31,400 CHF; displays as $40,000.
-      const symbol = currencyEl ? currencyEl.value : 'CHF';
-      const rate = exchangeRates[symbol] || 1;
-      const amountCHF = a / rate;
+      const amountCHF = a;
       const items = storeGet('nw:' + cat.key) || [];
-      items.push({ name: n, amount: amountCHF });
+      const entry = { name: n, amount: amountCHF };
+      if (tickerInput) {
+        const t = tickerInput.value.trim().toUpperCase();
+        if (t) entry.ticker = t;
+      }
+      items.push(entry);
       storeSet('nw:' + cat.key, items);
       logActivity(cat.key, n, amountCHF, 'add');
       nameInput.value = ''; amtInput.value = '';
+      if (tickerInput) tickerInput.value = '';
       renderAllNetWorth();
     }
     addBtn.addEventListener('click', doAdd);
     nameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') doAdd(); });
     amtInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') doAdd(); });
+    if (tickerInput) tickerInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') doAdd(); });
   });
 
-  if (currencyEl) {
-    const savedCur = storeGet(CURRENCY_KEY);
-    if (savedCur) currencyEl.value = savedCur;
-    currencyEl.addEventListener('change', () => {
-      storeSet(CURRENCY_KEY, currencyEl.value);
-      renderAllNetWorth();
-      renderSubs();
-    });
-  }
   renderAllNetWorth();
 
   // ============================================================
@@ -2648,13 +2682,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     const rows = subsList.querySelectorAll('.sub-row');
     const row = rows[idx];
     if (!row) return;
-    const enteredCcy = it.entered_currency || 'CHF';
     const enteredAmt = it.entered_amount != null ? it.entered_amount : it.amount;
     const periodOpts = ['monthly','yearly','weekly'].map(p =>
       '<option value="' + p + '"' + (p === it.period ? ' selected' : '') + '>' + p.charAt(0).toUpperCase() + p.slice(1) + '</option>'
-    ).join('');
-    const ccyOpts = ['CHF','USD','EUR','GBP'].map(c =>
-      '<option value="' + c + '"' + (c === enteredCcy ? ' selected' : '') + '>' + c + '</option>'
     ).join('');
     // Build From-account options from the live NW accounts
     const accounts = (typeof listAllNwAccounts === 'function') ? listAllNwAccounts() : [];
@@ -2672,7 +2702,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     form.innerHTML =
       '<input type="text" class="se-name" value="' + escapeHtml(it.name) + '" style="flex:1.5;min-width:120px;padding:6px 10px;border:0.5px solid rgba(255,255,255,0.10);border-radius:var(--radius-md);font-size:16px;font-family:inherit;background:var(--bg-card);color:var(--text-primary)" />' +
       '<input type="number" step="0.01" class="se-amt" value="' + Number(enteredAmt).toFixed(2) + '" style="width:90px;padding:6px 10px;border:0.5px solid rgba(255,255,255,0.10);border-radius:var(--radius-md);font-size:16px;font-family:inherit;background:var(--bg-card);color:var(--text-primary)" />' +
-      '<select class="se-ccy" style="padding:6px 10px;border:0.5px solid rgba(255,255,255,0.10);border-radius:var(--radius-md);font-size:16px;font-family:inherit;background:var(--bg-card);color:var(--text-primary)">' + ccyOpts + '</select>' +
       '<select class="se-per" style="padding:6px 10px;border:0.5px solid rgba(255,255,255,0.10);border-radius:var(--radius-md);font-size:16px;font-family:inherit;background:var(--bg-card);color:var(--text-primary)">' + periodOpts + '</select>' +
       '<label class="date-field" style="min-width:140px"><span class="date-emoji" aria-hidden="true">📅</span><input type="date" class="se-ren" value="' + (it.renewal && /^\d{4}-\d{2}-\d{2}/.test(it.renewal) ? it.renewal.slice(0,10) : '') + '" /></label>' +
       '<select class="se-from" style="padding:6px 10px;border:0.5px solid rgba(255,255,255,0.10);border-radius:var(--radius-md);font-size:16px;font-family:inherit;background:var(--bg-card);color:var(--text-primary);min-width:130px">' + fromOpts + '</select>' +
@@ -2683,7 +2712,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     const save = () => {
       const newName = row.querySelector('.se-name').value.trim();
       const newAmtRaw = parseFloat(row.querySelector('.se-amt').value);
-      const newCcy = row.querySelector('.se-ccy').value;
+      const newCcy = 'CHF';
       const newPer = row.querySelector('.se-per').value;
       const newRen = row.querySelector('.se-ren').value || null;
       const newFromVal = row.querySelector('.se-from').value;
@@ -2839,7 +2868,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
           '<div class="wish-row-h">'
         + '<div class="wish-row-info">'
         +   '<div class="wish-row-name">' + escapeHtml(it.name) + '</div>'
-        +   '<div class="wish-row-meta">' + (it.entered_currency || 'CHF') + ' ' + Number(it.entered_amount != null ? it.entered_amount : it.amount).toLocaleString('en-US', {maximumFractionDigits: 2}) + ' · added ' + fmtActivityDate(it.ts || Date.now()) + '</div>'
+        +   '<div class="wish-row-meta">' + fmtMoney(it.entered_amount != null ? it.entered_amount : it.amount) + ' · added ' + fmtActivityDate(it.ts || Date.now()) + '</div>'
         + '</div>'
         + '<div class="wish-row-amt-wrap">'
         +   '<div class="wish-row-amt">' + fmtMoney(cost) + '</div>'
@@ -3383,7 +3412,7 @@ document.addEventListener('DOMContentLoaded', function () {
   if (typeof initCloudSync !== 'function') return;
   initCloudSync({
     appKey: 'finance',
-    syncedKeys: ['subs', 'wishlist', 'incoming_orders', 'nw_currency', 'nw:activity', 'nw:history'],
+    syncedKeys: ['subs', 'wishlist', 'incoming_orders', 'nw:activity', 'nw:history'],
     syncedPrefixes: ['nw:'],
     onApplied: function () { window.dispatchEvent(new Event('storage')); }
   });
