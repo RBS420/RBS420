@@ -330,6 +330,11 @@ img, video, canvas, svg { max-width: 100%; }
 }
 .po-ex-log-btn:hover { transform: translateY(-1px); }
 .po-ex-log-btn:active { transform: translateY(0) scale(0.96); }
+.po-ex-row.is-logged .po-ex-log-btn {
+  background: rgba(255,255,255,0.08); border-color: var(--border);
+  color: var(--text-3); box-shadow: none;
+}
+.po-ex-w:disabled, .po-ex-r:disabled { opacity: 0.45; cursor: not-allowed; }
 
 /* ----- Last set summary ----- */
 .po-last-set {
@@ -1486,28 +1491,29 @@ img, video, canvas, svg { max-width: 100%; }
     const todayKey = wtDateKey(new Date());
     container.innerHTML = f.map(ex => {
       const allLogs = state.logs[ex.id] || [];
-      const todayLogs = allLogs.filter(l => l.date.slice(0, 10) === todayKey);
-      const lastAny = allLogs[allLogs.length - 1];
-      let metaStr;
-      if (todayLogs.length) {
-        const top = ex.bw
-          ? Math.max.apply(null, todayLogs.map(s => s.reps)) + ' reps'
-          : Math.max.apply(null, todayLogs.map(s => s.weight)) + unit();
-        metaStr = todayLogs.length + ' set' + (todayLogs.length === 1 ? '' : 's') + ' · top ' + top;
-      } else {
-        metaStr = 'Not logged yet';
-      }
+      const committedToday = allLogs.filter(l => l.date.slice(0, 10) === todayKey);
+      const stagedEntry = draftLogs.sets[ex.id] || null;
+      // Only one set per exercise per day — staging a new value replaces
+      // whatever was there, it never piles up.
+      const todayEntry = stagedEntry || (committedToday.length ? committedToday[committedToday.length - 1] : null);
+      const historicalLast = allLogs[allLogs.length - 1];
+      const isLocked = !!todayEntry && !editOverrides.has(ex.id);
+      const repsValue = todayEntry ? todayEntry.reps : '';
+      const weightValue = todayEntry ? todayEntry.weight : (historicalLast ? historicalLast.weight : (ex.startWeight || ''));
+      const metaStr = todayEntry
+        ? 'Logged: ' + (ex.bw ? todayEntry.reps + ' reps' : todayEntry.weight + unit() + ' × ' + todayEntry.reps)
+        : 'Not logged yet';
       const weightInputHtml = ex.bw ? '' :
-        '<input type="number" class="po-ex-w" step="' + (ex.step || 2.5) + '" inputmode="decimal" placeholder="' + unit() + '" value="' + (lastAny ? lastAny.weight : (ex.startWeight || '')) + '">';
-      return '<div class="po-ex-row" data-ex-id="' + ex.id + '">'
+        '<input type="number" class="po-ex-w" step="' + (ex.step || 2.5) + '" inputmode="decimal" placeholder="' + unit() + '" value="' + weightValue + '"' + (isLocked ? ' disabled' : '') + '>';
+      return '<div class="po-ex-row' + (isLocked ? ' is-logged' : '') + '" data-ex-id="' + ex.id + '">'
         + '<button type="button" class="po-ex-row-name" data-action="detail">'
         +   '<span class="po-ex-row-title">' + escape(ex.name) + '</span>'
         +   '<span class="po-ex-row-meta">' + metaStr + '</span>'
         + '</button>'
         + '<div class="po-ex-row-inputs' + (ex.bw ? ' po-bw-mode' : '') + '">'
         +   weightInputHtml
-        +   '<input type="number" class="po-ex-r" inputmode="numeric" placeholder="">'
-        +   '<button type="button" class="po-ex-log-btn" data-action="log">Log</button>'
+        +   '<input type="number" class="po-ex-r" inputmode="numeric" placeholder="" value="' + repsValue + '"' + (isLocked ? ' disabled' : '') + '>'
+        +   '<button type="button" class="po-ex-log-btn" data-action="log">' + (isLocked ? 'Logged' : 'Log') + '</button>'
         + '</div>'
       + '</div>';
     }).join('');
@@ -1714,6 +1720,27 @@ img, video, canvas, svg { max-width: 100%; }
   }
   let doneDays = loadDoneDays();
 
+  // Sets logged today are staged here first — nothing reaches state.logs
+  // (and therefore nothing shows up in stats/history/Analytics) until
+  // "Mark workout done" is pressed, which commits the whole draft at once.
+  const DRAFT_KEY = 'po_coach_draft';
+  function loadDraft() {
+    const todayKey = wtDateKey(new Date());
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      const parsed = raw ? JSON.parse(raw) : null;
+      if (parsed && parsed.dateKey === todayKey && parsed.sets) return parsed;
+    } catch (e) {}
+    return { dateKey: todayKey, sets: {} };
+  }
+  function saveDraft() {
+    try { localStorage.setItem(DRAFT_KEY, JSON.stringify(draftLogs)); } catch (e) {}
+  }
+  let draftLogs = loadDraft();
+  // Rows the user has tapped open again after staging a set, so they can
+  // change the values before the next "Log" press.
+  let editOverrides = new Set();
+
   function logsByDay() {
     const byDay = {};
     state.exercises.forEach(ex => {
@@ -1748,11 +1775,25 @@ img, video, canvas, svg { max-width: 100%; }
     return { perEx, totalSets, totalVol };
   }
 
+  function getStagedSummary() {
+    let totalSets = 0, totalVol = 0;
+    Object.keys(draftLogs.sets || {}).forEach(exId => {
+      const s = draftLogs.sets[exId];
+      if (!s) return;
+      totalSets++;
+      totalVol += (s.weight || 0) * (s.reps || 0);
+    });
+    return { totalSets, totalVol };
+  }
+
   function renderTodaysWorkout() {
     const todayKey = wtDateKey(new Date());
     const all = logsByDay();
     const todaySets = all[todayKey] || [];
-    const sum = summarizeDay(todaySets);
+    const committed = summarizeDay(todaySets);
+    const staged = getStagedSummary();
+    const totalSets = committed.totalSets + staged.totalSets;
+    const totalVol = committed.totalVol + staged.totalVol;
     const u = state.units;
 
     const eyebrow = $('poTwDateLabel');
@@ -1761,15 +1802,15 @@ img, video, canvas, svg { max-width: 100%; }
     const d = new Date();
     eyebrow.textContent = 'TODAY · ' + dows[d.getDay()] + ', ' + mons[d.getMonth()] + ' ' + d.getDate();
 
-    $('poTwSetCount').textContent = sum.totalSets;
-    $('poTwTotalVol').textContent = Math.round(sum.totalVol).toLocaleString() + ' ' + u + ' lifted';
+    $('poTwSetCount').textContent = totalSets;
+    $('poTwTotalVol').textContent = Math.round(totalVol).toLocaleString() + ' ' + u + ' lifted';
 
     // Done button state
     const btn = $('poTwDoneBtn');
     const isDone = !!doneDays[todayKey];
     btn.textContent = isDone ? '✓ Done' : 'Mark workout done';
     btn.classList.toggle('is-done', isDone);
-    btn.disabled = sum.totalSets === 0 && !isDone;
+    btn.disabled = totalSets === 0 && !isDone;
     btn.style.opacity = btn.disabled ? '0.4' : '';
   }
 
@@ -1808,6 +1849,29 @@ img, video, canvas, svg { max-width: 100%; }
 
   $('poTwDoneBtn').addEventListener('click', () => {
     const todayKey = wtDateKey(new Date());
+    const staged = getStagedSummary();
+    if (staged.totalSets > 0) {
+      // Commit every staged set into the real log — this is the moment
+      // it becomes part of history, stats, and Analytics.
+      let committedCount = 0;
+      Object.keys(draftLogs.sets).forEach(exId => {
+        const s = draftLogs.sets[exId];
+        if (!s) return;
+        const arr = state.logs[exId] || [];
+        arr.push({ weight: s.weight, reps: s.reps, date: new Date().toISOString() });
+        state.logs[exId] = arr;
+        committedCount++;
+      });
+      draftLogs = { dateKey: todayKey, sets: {} };
+      editOverrides.clear();
+      saveDraft();
+      doneDays[todayKey] = new Date().toISOString();
+      saveDoneDays(doneDays);
+      saveState();
+      renderAll();
+      alert('Workout logged — ' + committedCount + ' exercise' + (committedCount === 1 ? '' : 's') + ' saved.');
+      return;
+    }
     if (doneDays[todayKey]) {
       delete doneDays[todayKey];
     } else {
@@ -1859,16 +1923,23 @@ img, video, canvas, svg { max-width: 100%; }
       return;
     }
     if (e.target.closest('[data-action="log"]')) {
+      if (row.classList.contains('is-logged')) {
+        // Already staged — unlock so the values can be changed.
+        editOverrides.add(exId);
+        renderWorkoutList();
+        return;
+      }
       const repsInput = row.querySelector('.po-ex-r');
       const weightInput = row.querySelector('.po-ex-w');
       const reps = parseInt(repsInput.value, 10) || 0;
       if (reps <= 0) { alert('Enter a rep count.'); return; }
       const w = ex.bw ? 0 : (parseFloat(weightInput.value) || 0);
       if (!ex.bw && w <= 0) { alert('Enter a weight.'); return; }
-      const arr = state.logs[ex.id] || [];
-      arr.push({ weight: w, reps: reps, date: new Date().toISOString() });
-      state.logs[ex.id] = arr;
-      saveState(); renderAll();
+      draftLogs.sets[ex.id] = { weight: w, reps: reps };
+      editOverrides.delete(exId);
+      saveDraft();
+      renderWorkoutList();
+      renderTodaysWorkout();
     }
   });
   $('exDetailBack').addEventListener('click', closeExerciseDetail);
@@ -2550,7 +2621,7 @@ img, video, canvas, svg { max-width: 100%; }
   const SUPABASE_URL = 'https://cxeaxyfpmwycfjsocytn.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_ktw2MRKZqUQuyAno8kqAXQ_hY-pZNed';
   const APP_KEY = 'po-coach';
-  const PC_SYNCED_KEYS = ['po_coach_v1', 'po_coach_workout_done', 'po_coach_photos'];
+  const PC_SYNCED_KEYS = ['po_coach_v1', 'po_coach_workout_done', 'po_coach_photos', 'po_coach_draft'];
 
   let pcSupa = null;
   let pcPushTimer = null;
@@ -2609,6 +2680,7 @@ img, video, canvas, svg { max-width: 100%; }
     // key — otherwise renderAll/photosRender would read stale in-memory
     // copies from before the remote pull.
     try { state = loadState(); } catch {}
+    try { draftLogs = loadDraft(); } catch {}
     try {
       const raw = localStorage.getItem(PHOTO_KEY);
       photos = raw ? JSON.parse(raw) : [];
