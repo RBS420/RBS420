@@ -30,13 +30,8 @@ Contact: rowan.wisere@gmail.com
 const CONFIG = {
   appTitle: "Water",
 
-  // Default user profile (gets overwritten by what you save in Settings).
-  profile: {
-    weightKg: 75,
-    age: 25,
-    sex: "m",            // "m" | "f" | "o"
-    activityHrsPerWeek: 5
-  }
+  // Daily target in oz. Editable any time in Settings.
+  targetOz: 99
 };
 </script>
 
@@ -169,10 +164,11 @@ html, body {
 
 /* Quick add */
 .quick-add-row {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+  display: flex; flex-wrap: wrap; gap: 8px;
   margin-top: 6px;
 }
 .quick-add-btn {
+  flex: 1 1 30%; min-width: 64px;
   background: linear-gradient(180deg, #ffffff 0%, #e8e5dd 100%);
   color: #0a0a0b; border: none; border-radius: 12px;
   font-family: inherit; font-size: 14px; font-weight: 700;
@@ -224,42 +220,6 @@ html, body {
   font-style: italic;
 }
 .water-helper.good { color: var(--good); font-style: normal; }
-
-/* ----- Why this target? collapsible ----- */
-.why-toggle {
-  width: 100%; display: flex; align-items: center; justify-content: space-between;
-  background: transparent; border: 1px solid var(--border);
-  color: var(--text-2); border-radius: 10px;
-  padding: 11px 14px; cursor: pointer; margin-top: 14px;
-  font-family: inherit; font-size: 12px; font-weight: 600;
-  letter-spacing: 0.04em;
-  -webkit-tap-highlight-color: transparent;
-}
-.why-toggle:hover { background: rgba(255,255,255,0.04); color: var(--text-1); }
-.why-arrow { transition: transform 0.2s; font-size: 14px; }
-.why-toggle[aria-expanded="true"] .why-arrow { transform: rotate(180deg); }
-.why-body {
-  margin-top: 8px;
-  padding: 14px 16px;
-  background: rgba(255,255,255,0.025);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  display: none;
-}
-.why-body.show { display: block; }
-.why-row {
-  display: flex; justify-content: space-between; align-items: baseline;
-  font-size: 13px; padding: 4px 0;
-  font-variant-numeric: tabular-nums;
-}
-.why-row .why-label { color: var(--text-2); }
-.why-row .why-val   { color: var(--text-1); font-weight: 600; font-family: var(--font-mono); }
-.why-row.total {
-  border-top: 1px solid var(--border);
-  margin-top: 8px; padding-top: 10px;
-}
-.why-row.total .why-label { color: var(--good); font-weight: 700; }
-.why-row.total .why-val   { color: var(--good); }
 
 /* ----- History ----- */
 .hist-row {
@@ -337,24 +297,6 @@ html, body {
   border-color: rgba(110,231,183,0.40);
   box-shadow: 0 0 0 2px rgba(110,231,183,0.10);
 }
-.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.seg {
-  display: flex; gap: 4px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid var(--border);
-  border-radius: 10px; padding: 3px;
-}
-.seg button {
-  flex: 1; padding: 9px; border: none; background: transparent;
-  color: var(--text-3); border-radius: 7px;
-  font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-.seg button.active {
-  background: linear-gradient(180deg, #ffffff 0%, #e8e5dd 100%);
-  color: #0a0a0b;
-}
-
 /* ----- Buttons ----- */
 .btn-primary {
   width: 100%; padding: 13px;
@@ -408,7 +350,7 @@ html, body {
     <div class="water-label">OZ DRANK TODAY</div>
     <div class="water-row">
       <span class="water-num" id="waterNum">0</span>
-      <span class="water-target" id="waterTarget">/ 67 oz</span>
+      <span class="water-target" id="waterTarget">out of 99 oz</span>
     </div>
 
     <div class="water-bar-wrap">
@@ -426,6 +368,7 @@ html, body {
 
     <div class="quick-add-row">
       <button class="quick-add-btn" data-oz="8">+8 oz</button>
+      <button class="quick-add-btn" data-oz="10">+10 oz</button>
       <button class="quick-add-btn" data-oz="16">+16 oz</button>
       <button class="quick-add-btn" data-oz="20">+20 oz</button>
       <button class="quick-add-btn" data-oz="32">+32 oz</button>
@@ -437,12 +380,6 @@ html, body {
     <button class="undo-link" id="undoBtn" type="button" disabled>Undo last add</button>
 
     <div class="water-helper" id="waterHelper">Start the day — first one in.</div>
-
-    <button class="why-toggle" id="whyToggle" type="button" aria-expanded="false">
-      <span>Why this target?</span>
-      <span class="why-arrow">▾</span>
-    </button>
-    <div class="why-body" id="whyBody"></div>
   </div>
 
   <div class="card">
@@ -460,37 +397,10 @@ html, body {
     <h3>Settings</h3>
 
     <div class="set-section">
-      <h4>Profile</h4>
-      <div class="field-row">
-        <div class="field">
-          <label>Weight</label>
-          <input type="number" id="setWeight" step="0.5" min="20" max="300">
-        </div>
-        <div class="field">
-          <label>Weight unit</label>
-          <div class="seg" id="setWeightUnit">
-            <button data-u="kg">kg</button>
-            <button data-u="lb">lb</button>
-          </div>
-        </div>
-      </div>
-      <div class="field-row">
-        <div class="field">
-          <label>Age</label>
-          <input type="number" id="setAge" min="13" max="100">
-        </div>
-        <div class="field">
-          <label>Sex</label>
-          <div class="seg" id="setSex">
-            <button data-s="m">Male</button>
-            <button data-s="f">Female</button>
-            <button data-s="o">Other</button>
-          </div>
-        </div>
-      </div>
+      <h4>Daily target</h4>
       <div class="field">
-        <label>Activity (training hours per week)</label>
-        <input type="number" id="setActivity" min="0" max="40" step="0.5">
+        <label>Oz per day</label>
+        <input type="number" id="setTargetOz" min="1" max="300" step="1">
       </div>
     </div>
 
@@ -513,11 +423,11 @@ html, body {
 <script>
 (function() {
   const $ = (id) => document.getElementById(id);
-  const ML_PER_OZ = 29.5735;
 
   // ============================================================
   // STATE — water logs are stored as total oz per day (not a serving
-  // count), e.g. state.logs['2026-06-19'] = 64.
+  // count), e.g. state.logs['2026-06-19'] = 64. Daily target is just a
+  // flat number you set yourself, no calculation.
   // ============================================================
   const LS_KEY = 'po_water_v1';
   function loadState() {
@@ -530,16 +440,16 @@ html, body {
   function normalize(s) {
     s = s || {};
     // Older versions tracked a serving count (bottles/glasses/etc) with
-    // caffeine + stimulant adjustments. Those numbers don't mean
-    // anything as oz, so start today's logs fresh rather than show
-    // confusing history.
+    // caffeine + stimulant adjustments, plus a profile-based target
+    // calculation. Those numbers don't mean anything as oz, so start
+    // today's logs fresh rather than show confusing history.
     if (s.unit || s.substances || s.caffeineMgPerDay != null) {
       s.logs = {};
     }
     delete s.unit; delete s.bottleMl; delete s.glassMl;
     delete s.caffeineMgPerDay; delete s.substances;
-    s.weightUnit = s.weightUnit || 'kg';
-    s.profile = Object.assign({}, CONFIG.profile, s.profile || {});
+    delete s.profile; delete s.weightUnit;
+    s.targetOz = (s.targetOz != null) ? s.targetOz : (CONFIG.targetOz || 99);
     s.logs = (s.logs && typeof s.logs === 'object') ? s.logs : {};  // {YYYY-MM-DD: oz_total}
     return s;
   }
@@ -567,26 +477,6 @@ html, body {
   }
 
   // ============================================================
-  // CALCULATOR — daily water target in ml, converted to oz for display
-  //
-  //   base_ml  = weight_kg × 35 ml      (NAM/IOM standard)
-  //   exercise = activity_hrs/wk ÷ 7 × 500 ml/day   (≈500 ml/hr training)
-  //   adjustments: +200 ml male, +100 ml age 50+
-  // ============================================================
-  function computeTargetMl() {
-    const p = state.profile;
-    const wKg = state.weightUnit === 'lb' ? p.weightKg / 2.20462 : p.weightKg;
-    const base = wKg * 35;
-    const exercise = (p.activityHrsPerWeek || 0) / 7 * 500;
-    let adjust = 0;
-    if (p.sex === 'm') adjust += 200;
-    if ((p.age || 0) >= 50) adjust += 100;
-    return { base, exercise, adjust, total: base + exercise + adjust };
-  }
-  function toOz(ml) { return ml / ML_PER_OZ; }
-  function fmtOz(ml) { return Math.round(toOz(ml)) + ' oz'; }
-
-  // ============================================================
   // RENDER
   // ============================================================
   function renderDayPill() {
@@ -597,12 +487,11 @@ html, body {
   }
 
   function renderWater() {
-    const calc = computeTargetMl();
-    const targetOz = Math.round(toOz(calc.total));
+    const targetOz = state.targetOz || 99;
     const count = todayOz();
 
     $('waterNum').textContent = count;
-    $('waterTarget').textContent = '/ ' + targetOz + ' oz';
+    $('waterTarget').textContent = 'out of ' + targetOz + ' oz';
 
     // Progress bar with three zones: low (0-65%), healthy (65-100%), over (100-150%)
     const pctRaw = (count / targetOz) * 100;
@@ -625,23 +514,8 @@ html, body {
 
     $('undoBtn').disabled = lastAddOz == null;
 
-    renderWhy(calc, targetOz);
     renderHistory(targetOz);
     renderSparkline(targetOz);
-  }
-
-  function renderWhy(calc, targetOz) {
-    const wrap = $('whyBody');
-    const u = state.weightUnit;
-    const wDisp = state.profile.weightKg.toFixed(0);
-    let html = '';
-    html += '<div class="why-row"><span class="why-label">Base (' + wDisp + ' ' + u + ' × 35 ml)</span><span class="why-val">' + fmtOz(calc.base) + '</span></div>';
-    if (calc.exercise > 0)
-      html += '<div class="why-row"><span class="why-label">+ Exercise (' + state.profile.activityHrsPerWeek + ' h/wk)</span><span class="why-val">+ ' + fmtOz(calc.exercise) + '</span></div>';
-    if (calc.adjust > 0)
-      html += '<div class="why-row"><span class="why-label">+ Sex / age adjustment</span><span class="why-val">+ ' + fmtOz(calc.adjust) + '</span></div>';
-    html += '<div class="why-row total"><span class="why-label">Daily target</span><span class="why-val">' + targetOz + ' oz</span></div>';
-    wrap.innerHTML = html;
   }
 
   function renderHistory(target) {
@@ -729,51 +603,16 @@ html, body {
     renderWater();
   });
 
-  $('whyToggle').addEventListener('click', () => {
-    const body = $('whyBody');
-    const open = body.classList.contains('show');
-    body.classList.toggle('show');
-    $('whyToggle').setAttribute('aria-expanded', open ? 'false' : 'true');
-  });
-
   // ============================================================
   // SETTINGS
   // ============================================================
   function renderSettings() {
-    $('setWeight').value = state.profile.weightKg;
-    $('setAge').value = state.profile.age;
-    $('setActivity').value = state.profile.activityHrsPerWeek;
-
-    setSegActive('setWeightUnit', state.weightUnit);
-    setSegActive('setSex', state.profile.sex);
+    $('setTargetOz').value = state.targetOz;
   }
-  function setSegActive(segId, value) {
-    $(segId).querySelectorAll('button').forEach(b => {
-      const v = b.dataset.u || b.dataset.s;
-      b.classList.toggle('active', v === value);
-    });
-  }
-  function bindSeg(segId, attr, onPick) {
-    $(segId).querySelectorAll('button').forEach(b => {
-      b.addEventListener('click', () => {
-        const v = b.dataset[attr];
-        $(segId).querySelectorAll('button').forEach(x => x.classList.remove('active'));
-        b.classList.add('active');
-        onPick(v);
-      });
-    });
-  }
-  bindSeg('setWeightUnit', 'u', (v) => { state.weightUnit = v; saveState(); renderWater(); });
-  bindSeg('setSex', 's', (v) => { state.profile.sex = v; saveState(); renderWater(); });
-
-  ['setWeight','setAge','setActivity'].forEach(id => {
-    $(id).addEventListener('input', () => {
-      const v = parseFloat($(id).value);
-      if (id === 'setWeight') state.profile.weightKg = v || 0;
-      else if (id === 'setAge') state.profile.age = v || 0;
-      else if (id === 'setActivity') state.profile.activityHrsPerWeek = v || 0;
-      saveState(); renderWater();
-    });
+  $('setTargetOz').addEventListener('input', () => {
+    const v = parseFloat($('setTargetOz').value);
+    state.targetOz = v || 99;
+    saveState(); renderWater();
   });
 
   $('settingsBtn').addEventListener('click', () => {
