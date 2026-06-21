@@ -16,6 +16,12 @@
     if (SUPABASE_URL.indexOf('PASTE-') === 0 || SUPABASE_KEY.indexOf('PASTE-') === 0) return;
 
     let supa = null, pushTimer = null, suppressSync = false, lastSyncedJson = null;
+    // Persisted (not just in-memory) record of the last state we know is
+    // confirmed in sync with the cloud. Used on boot to detect "local
+    // changed since the last confirmed sync" (e.g. a day-rollover that
+    // just ran on this load) so we don't let a stale remote snapshot
+    // wipe those changes out before they've had a chance to be pushed.
+    const LAST_SYNCED_KEY = '__sync_snapshot_' + appKey;
 
     function matches(k) {
       if (!k) return false;
@@ -68,6 +74,7 @@
         }
       } finally { suppressSync = false; }
       if (changed && typeof onApplied === 'function') { try { onApplied(); } catch (e) {} }
+      try { origSet(LAST_SYNCED_KEY, JSON.stringify(remote)); } catch (e) {}
       return changed;
     }
     async function pushNow() {
@@ -80,7 +87,7 @@
           { key: appKey, data: state, updated_at: new Date().toISOString() },
           { onConflict: 'key' }
         );
-        if (!error) lastSyncedJson = json;
+        if (!error) { lastSyncedJson = json; try { origSet(LAST_SYNCED_KEY, json); } catch (e) {} }
       } catch (e) {}
     }
     function schedulePush() { clearTimeout(pushTimer); pushTimer = setTimeout(pushNow, 250); }
@@ -101,17 +108,32 @@
           keepalive: true,
         }).catch(() => {});
         lastSyncedJson = json;
+        try { origSet(LAST_SYNCED_KEY, json); } catch (e) {}
       } catch (e) {}
     }
     (async function init() {
       supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
       try {
-        const { data, error } = await supa.from('app_state').select('data').eq('key', appKey).maybeSingle();
-        if (!error && data && data.data && Object.keys(data.data).length > 0) {
-          lastSyncedJson = JSON.stringify(data.data);
-          applyRemote(data.data);
-        } else if (Object.keys(collect()).length > 0) {
-          schedulePush();
+        const localState = collect();
+        const localJson = JSON.stringify(localState);
+        const hasLocalData = Object.keys(localState).length > 0;
+        let lastKnownSynced = null;
+        try { lastKnownSynced = localStorage.getItem(LAST_SYNCED_KEY); } catch (e) {}
+        // If local data changed since the last confirmed sync (e.g. a
+        // day-rollover ran on this exact page load before we got here),
+        // push it up FIRST. Otherwise the upcoming remote fetch could
+        // return a stale snapshot and applyRemote() would delete those
+        // just-made local-only changes.
+        if (hasLocalData && localJson !== lastKnownSynced) {
+          await pushNow();
+        } else {
+          const { data, error } = await supa.from('app_state').select('data').eq('key', appKey).maybeSingle();
+          if (!error && data && data.data && Object.keys(data.data).length > 0) {
+            lastSyncedJson = JSON.stringify(data.data);
+            applyRemote(data.data);
+          } else if (hasLocalData) {
+            schedulePush();
+          }
         }
       } catch (e) {}
       supa.channel('app_state_' + appKey)
