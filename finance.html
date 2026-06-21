@@ -707,170 +707,6 @@ html, body { scrollbar-width: none; -ms-overflow-style: none; }
 .nw-activity-list.hidden { display: none; }
 
 /* ============================================================
-   ORDERS — full-spec form (name, cost, ccy, from-category, date)
-   ============================================================ */
-.ord-add-card {
-  background: rgba(255,255,255,0.025) !important;
-  border: 1px solid rgba(255,255,255,0.05) !important;
-}
-.ord-add-eyebrow {
-  font-size: 10px; letter-spacing: 0.18em; font-weight: 800;
-  text-transform: uppercase; color: var(--text-tertiary);
-  font-family: var(--font-mono);
-  margin-bottom: 10px;
-}
-.ord-add-grid {
-  display: grid;
-  grid-template-columns: 1.6fr 1fr 1.1fr 1.1fr auto;
-  gap: 6px; align-items: stretch;
-  padding: 4px;
-  background: rgba(0, 0, 0, 0.30);
-  border-radius: 12px;
-}
-@media (max-width: 720px) {
-  .ord-add-grid { grid-template-columns: 1fr 1fr; }
-  .ord-add-grid .ord-input-name { grid-column: 1 / -1; }
-  .ord-add-grid .ord-add-btn    { grid-column: 1 / -1; }
-}
-.ord-input {
-  background: transparent; border: none; outline: none;
-  color: var(--text-primary);
-  font-family: inherit; font-size: 16px;
-  padding: 9px 10px;
-  min-width: 0;
-  -moz-appearance: textfield;
-}
-.ord-input::-webkit-outer-spin-button,
-.ord-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-.ord-input::placeholder { color: var(--text-tertiary); }
-.ord-input-cost { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
-.ord-input-from {
-  background: rgba(255,255,255,0.04);
-  border-radius: 8px;
-  cursor: pointer; font-weight: 600;
-  appearance: none; -webkit-appearance: none;
-  text-align: center;
-  font-size: 16px;
-}
-.ord-add-btn {
-  padding: 0 14px;
-  background: linear-gradient(180deg, #6EE7B7, #4ED4A0);
-  color: #04201A; border: none;
-  border-radius: 9px;
-  font-family: inherit; font-size: 13px; font-weight: 700;
-  cursor: pointer; white-space: nowrap;
-  box-shadow: 0 4px 14px rgba(110,231,183,0.22);
-  transition: transform 0.12s, box-shadow 0.18s;
-}
-.ord-add-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(110,231,183,0.36); }
-.ord-add-btn:active { transform: scale(0.97); }
-.ord-add-preview {
-  margin-top: 10px; padding: 8px 12px;
-  background: rgba(110,231,183,0.06);
-  border: 1px solid rgba(110,231,183,0.14);
-  border-radius: 8px;
-  font-size: 12px; color: var(--text-secondary);
-  font-family: var(--font-mono);
-}
-.ord-add-preview.warn { background: rgba(242,192,99,0.08); border-color: rgba(242,192,99,0.20); color: #F2C063; }
-.ord-add-preview.bad  { background: rgba(255,138,138,0.08); border-color: rgba(255,138,138,0.20); color: #FF8A8A; }
-
-.ord-section-h {
-  display: flex; justify-content: space-between; align-items: baseline;
-  margin: 18px 4px 8px;
-}
-.ord-section-label {
-  font-size: 10px; letter-spacing: 0.18em; font-weight: 800;
-  text-transform: uppercase; color: var(--text-tertiary);
-  font-family: var(--font-mono);
-}
-.ord-section-count {
-  font-size: 11px; color: var(--text-tertiary);
-  font-family: var(--font-mono);
-  font-variant-numeric: tabular-nums;
-}
-
-.ord-card {
-  background: rgba(255,255,255,0.025);
-  border-radius: 14px;
-  padding: 14px 16px;
-  margin-bottom: 8px;
-  border-left: 3px solid var(--text-tertiary);
-  transition: background 0.15s;
-}
-.ord-card:hover { background: rgba(255,255,255,0.045); }
-.ord-card.cat-bank   { border-left-color: #7DD3FC; }
-.ord-card.cat-stocks { border-left-color: #6EE7B7; }
-.ord-card.cat-crypto { border-left-color: #FBBF24; }
-.ord-card.cat-other  { border-left-color: #B794F4; }
-.ord-card-h {
-  display: grid; grid-template-columns: 1fr auto auto;
-  gap: 12px; align-items: baseline;
-}
-.ord-card-name {
-  font-size: 15px; font-weight: 700;
-  color: var(--text-primary);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.ord-card-amt {
-  font-size: 17px; font-weight: 700;
-  color: var(--text-primary);
-  font-variant-numeric: tabular-nums;
-  font-family: var(--font-mono);
-  white-space: nowrap;
-}
-.ord-card-x {
-  background: transparent; border: 1px solid rgba(255,255,255,0.08);
-  color: var(--text-tertiary);
-  cursor: pointer; font-size: 14px;
-  padding: 4px 9px; border-radius: 6px;
-  font-family: inherit; line-height: 1;
-}
-.ord-card-x:hover { color: #FF8A8A; }
-.ord-card-meta {
-  display: flex; flex-wrap: wrap; gap: 10px;
-  margin-top: 8px;
-  font-size: 11px;
-  font-family: var(--font-mono);
-  color: var(--text-tertiary);
-}
-.ord-meta-pill {
-  display: inline-flex; align-items: center; gap: 5px;
-  padding: 3px 9px; border-radius: 999px;
-  background: rgba(255,255,255,0.04);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-}
-.ord-meta-pill.from { color: var(--text-secondary); }
-.ord-meta-pill.pct.good { color: #6EE7B7; background: rgba(110,231,183,0.10); }
-.ord-meta-pill.pct.warn { color: #F2C063; background: rgba(242,192,99,0.10); }
-.ord-meta-pill.pct.bad  { color: #FF8A8A; background: rgba(255,138,138,0.10); }
-.ord-meta-pill.date { color: var(--text-secondary); }
-.ord-meta-pill.date.soon { color: #F2C063; background: rgba(242,192,99,0.10); }
-.ord-meta-pill.date.today { color: #6EE7B7; background: rgba(110,231,183,0.10); }
-.ord-meta-pill.date.past { color: #FF8A8A; background: rgba(255,138,138,0.10); }
-
-.ord-empty-card {
-  text-align: center; padding: 32px 20px;
-  background: rgba(255,255,255,0.025);
-  border-radius: 14px;
-  border: 1px dashed rgba(255,255,255,0.08);
-}
-.ord-empty-card.hidden { display: none; }
-.ord-empty-icon {
-  font-size: 36px; margin-bottom: 8px;
-  opacity: 0.6;
-}
-.ord-empty-title {
-  font-size: 15px; font-weight: 700;
-  color: var(--text-primary); margin-bottom: 4px;
-}
-.ord-empty-sub {
-  font-size: 12px; color: var(--text-tertiary);
-  line-height: 1.5; max-width: 360px; margin: 0 auto;
-}
-
-/* ============================================================
    WISHLIST — premium polished UI
    ============================================================ */
 /* Hero card */
@@ -1171,130 +1007,6 @@ html, body { scrollbar-width: none; -ms-overflow-style: none; }
 .ticker-dot.active { background: #6BE3A4; }
 .finance-ticker.urgent .ticker-dot.active { background: #FF8A8A; }
 
-/* ============================================================
-   DEDUCT-FROM-NW BUTTON & CHOOSER (in order cards)
-   ============================================================ */
-.ord-card-foot {
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: 1px dashed rgba(255,255,255,0.06);
-  display: flex; flex-wrap: wrap; gap: 8px;
-  align-items: center;
-}
-.ord-deduct-btn {
-  background: linear-gradient(180deg, rgba(125,211,252,0.18), rgba(125,211,252,0.08));
-  border: 1px solid rgba(125,211,252,0.30);
-  color: #BFE3F8;
-  font-family: inherit;
-  font-size: 11.5px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  padding: 7px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: transform 0.12s, background 0.18s, box-shadow 0.18s;
-}
-.ord-deduct-btn:hover {
-  background: linear-gradient(180deg, rgba(125,211,252,0.28), rgba(125,211,252,0.12));
-  box-shadow: 0 4px 14px rgba(125,211,252,0.22);
-  transform: translateY(-1px);
-}
-.ord-deduct-btn:active { transform: scale(0.97); }
-.ord-deducted-pill {
-  display: inline-flex; align-items: center; gap: 6px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: #6EE7B7;
-  background: rgba(110,231,183,0.10);
-  border: 1px solid rgba(110,231,183,0.20);
-  padding: 5px 10px;
-  border-radius: 999px;
-}
-.ord-deducted-pill::before {
-  content: '✓';
-  font-size: 12px;
-}
-.ord-deduct-undo {
-  background: transparent;
-  border: 1px solid rgba(255,255,255,0.10);
-  color: var(--text-tertiary);
-  font-family: inherit;
-  font-size: 10.5px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  padding: 4px 9px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-.ord-deduct-undo:hover { color: var(--text-primary); border-color: rgba(255,255,255,0.20); }
-
-.ord-deduct-chooser {
-  margin-top: 10px;
-  padding: 12px;
-  background: rgba(0,0,0,0.30);
-  border: 1px solid rgba(125,211,252,0.18);
-  border-radius: 10px;
-}
-.ord-deduct-chooser-title {
-  font-size: 10px; letter-spacing: 0.18em; font-weight: 800;
-  text-transform: uppercase; color: var(--text-tertiary);
-  font-family: var(--font-mono);
-  margin-bottom: 8px;
-}
-.ord-deduct-options {
-  display: flex; flex-wrap: wrap; gap: 6px;
-  margin-bottom: 8px;
-}
-.ord-deduct-opt {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.06);
-  color: var(--text-primary);
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 7px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
-}
-.ord-deduct-opt:hover {
-  background: rgba(125,211,252,0.10);
-  border-color: rgba(125,211,252,0.30);
-}
-.ord-deduct-opt small {
-  display: block;
-  font-size: 10px;
-  font-family: var(--font-mono);
-  color: var(--text-tertiary);
-  margin-top: 2px;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-}
-.ord-deduct-opt.insufficient {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-.ord-deduct-opt.insufficient:hover {
-  background: rgba(255,255,255,0.04);
-  border-color: rgba(255,255,255,0.06);
-}
-.ord-deduct-cancel {
-  background: transparent;
-  border: none;
-  color: var(--text-tertiary);
-  font-family: inherit;
-  font-size: 11px;
-  cursor: pointer;
-  text-decoration: underline;
-}
-.ord-card.is-deducted { opacity: 0.85; }
-.ord-card.is-deducted .ord-card-name { text-decoration: line-through; text-decoration-thickness: 1px; text-decoration-color: rgba(255,255,255,0.20); }
-.ord-meta-pill.pct.frozen { font-style: italic; }
-.ord-meta-pill.pct.frozen::after { content: ' · frozen'; opacity: 0.6; font-style: normal; }
 
 /* ============================================================
    SUBSCRIPTION ROW URGENT FLASH — fires when the renewal is
@@ -1364,23 +1076,6 @@ html, body { scrollbar-width: none; -ms-overflow-style: none; }
     font-size: 16px !important;
   }
 
-  /* ---------- Orders add grid ---------- */
-  .ord-add-grid {
-    grid-template-columns: 1fr !important;
-    gap: 8px;
-    padding: 8px;
-  }
-  .ord-add-grid .ord-input,
-  .ord-add-grid .ord-add-btn {
-    width: 100%;
-    padding: 12px 14px !important;
-    font-size: 16px !important;
-    text-align: left;
-  }
-  .ord-add-grid .ord-input-cost { text-align: right; }
-  .ord-add-grid .ord-input-from { text-align: center; }
-  .ord-add-grid .ord-add-btn { text-align: center; }
-
   /* ---------- Wishlist add row ---------- */
   .wish-add-row {
     flex-direction: column;
@@ -1400,7 +1095,7 @@ html, body { scrollbar-width: none; -ms-overflow-style: none; }
   .wish-add-row .wish-input-amt { text-align: right; }
 
   /* ---------- Bigger close (×) and edit buttons in rows ---------- */
-  .ord-card-x, .wish-row-x {
+  .wish-row-x {
     padding: 8px 12px !important;
     font-size: 16px !important;
   }
@@ -1686,35 +1381,14 @@ input[type="date"]::-webkit-calendar-picker-indicator {
           <button class="quick-add-btn" id="bankAddBtn">+</button>
         </div>
       </div>
-      <!-- Stocks / Investments -->
+      <!-- Credit cards (debt — subtracted from net worth) -->
       <div class="card nw-subcard">
-        <div class="label" style="display:flex;justify-content:space-between;align-items:center"><span>📈 Stocks / Investments</span><span id="stocksTotal" style="font-size:13px;color:var(--text-primary);font-weight:600">0</span></div>
-        <div id="stocksList" class="nw-list"></div>
+        <div class="label" style="display:flex;justify-content:space-between;align-items:center"><span>💳 Credit cards</span><span id="creditcardsTotal" style="font-size:13px;color:var(--text-primary);font-weight:600">0</span></div>
+        <div id="creditcardsList" class="nw-list"></div>
         <div class="quick-add">
-          <input type="text" placeholder="Stock / fund" id="stocksName" />
-          <input type="text" placeholder="Ticker (e.g. AAPL)" id="stocksTicker" style="max-width:120px" />
-          <input type="number" placeholder="Value" id="stocksAmount" step="0.01" />
-          <button class="quick-add-btn" id="stocksAddBtn">+</button>
-        </div>
-      </div>
-      <!-- Crypto -->
-      <div class="card nw-subcard">
-        <div class="label" style="display:flex;justify-content:space-between;align-items:center"><span>🪙 Crypto</span><span id="cryptoTotal" style="font-size:13px;color:var(--text-primary);font-weight:600">0</span></div>
-        <div id="cryptoList" class="nw-list"></div>
-        <div class="quick-add">
-          <input type="text" placeholder="Coin / wallet" id="cryptoName" />
-          <input type="number" placeholder="Value" id="cryptoAmount" step="0.01" />
-          <button class="quick-add-btn" id="cryptoAddBtn">+</button>
-        </div>
-      </div>
-      <!-- Other assets -->
-      <div class="card nw-subcard">
-        <div class="label" style="display:flex;justify-content:space-between;align-items:center"><span>💼 Other assets</span><span id="otherTotal" style="font-size:13px;color:var(--text-primary);font-weight:600">0</span></div>
-        <div id="otherList" class="nw-list"></div>
-        <div class="quick-add">
-          <input type="text" placeholder="Asset name" id="otherName" />
-          <input type="number" placeholder="Value" id="otherAmount" step="0.01" />
-          <button class="quick-add-btn" id="otherAddBtn">+</button>
+          <input type="text" placeholder="Card name" id="creditcardsName" />
+          <input type="number" placeholder="Balance owed" id="creditcardsAmount" step="0.01" />
+          <button class="quick-add-btn" id="creditcardsAddBtn">+</button>
         </div>
       </div>
     </div>
@@ -1759,37 +1433,34 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   </div>
 </div>
 
-<!-- ===== INCOMING ORDERS ===== -->
-<div class="section" data-section="incoming">
+<!-- ===== INVESTING ===== -->
+<div class="section" data-section="investing">
   <div class="section-title">
-    <span class="section-title-text">INCOMING ORDERS</span>
+    <span class="section-title-text">INVESTING</span>
   </div>
 
-  <!-- Add card with cost + currency + from-category + arrival date -->
-  <div class="card ord-add-card">
-    <div class="ord-add-eyebrow">+ NEW ORDER</div>
-    <div class="ord-add-grid">
-      <input type="text"   id="ordName"   placeholder="Item (e.g. New iPhone)" class="ord-input ord-input-name">
-      <input type="number" id="ordCost"   placeholder="Cost" step="0.01" class="ord-input ord-input-cost">
-      <select id="ordFromCat" class="ord-input ord-input-from" title="Which net worth account this comes out of">
-        <option value="">No accounts yet</option>
-      </select>
-      <label class="date-field ord-input-date" title="Expected arrival"><span class="date-emoji" aria-hidden="true">📅</span><input type="date" id="ordArrival" /></label>
-      <button class="ord-add-btn" id="ordAddBtn" onclick="window.__addOrder && window.__addOrder()">+ Add Order</button>
+  <div class="card-grid" style="gap:10px">
+    <!-- Stocks / Investments -->
+    <div class="card nw-subcard">
+      <div class="label" style="display:flex;justify-content:space-between;align-items:center"><span>📈 Stocks / Investments</span><span id="stocksTotal" style="font-size:13px;color:var(--text-primary);font-weight:600">0</span></div>
+      <div id="stocksList" class="nw-list"></div>
+      <div class="quick-add">
+        <input type="text" placeholder="Stock / fund" id="stocksName" />
+        <input type="text" placeholder="Ticker (e.g. AAPL)" id="stocksTicker" style="max-width:120px" />
+        <input type="number" placeholder="Value" id="stocksAmount" step="0.01" />
+        <button class="quick-add-btn" id="stocksAddBtn">+</button>
+      </div>
     </div>
-    <div class="ord-add-preview" id="ordAddPreview">Type a cost — preview will show what % of net worth it takes.</div>
-  </div>
-
-  <!-- Items list -->
-  <div class="ord-section-h">
-    <span class="ord-section-label">ITEMS ON THE WAY</span>
-    <span class="ord-section-count" id="ordCount">0 items</span>
-  </div>
-  <div id="ordList"></div>
-  <div class="ord-empty-card" id="ordEmpty">
-    <div class="ord-empty-icon">📦</div>
-    <div class="ord-empty-title">Nothing on the way</div>
-    <div class="ord-empty-sub">Log an order above. Pick the account it comes out of, the expected arrival date, and the dashboard will show what % of your net worth it costs.</div>
+    <!-- Crypto -->
+    <div class="card nw-subcard">
+      <div class="label" style="display:flex;justify-content:space-between;align-items:center"><span>🪙 Crypto</span><span id="cryptoTotal" style="font-size:13px;color:var(--text-primary);font-weight:600">0</span></div>
+      <div id="cryptoList" class="nw-list"></div>
+      <div class="quick-add">
+        <input type="text" placeholder="Coin / wallet" id="cryptoName" />
+        <input type="number" placeholder="Value" id="cryptoAmount" step="0.01" />
+        <button class="quick-add-btn" id="cryptoAddBtn">+</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1847,13 +1518,13 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     <span class="bot-tab-icon">📊</span>
     <span class="bot-tab-label">Net Worth</span>
   </button>
+  <button class="bot-tab" data-tab="investing">
+    <span class="bot-tab-icon">📈</span>
+    <span class="bot-tab-label">Investing</span>
+  </button>
   <button class="bot-tab" data-tab="subs">
     <span class="bot-tab-icon">🔁</span>
     <span class="bot-tab-label">Subs</span>
-  </button>
-  <button class="bot-tab" data-tab="incoming">
-    <span class="bot-tab-icon">📦</span>
-    <span class="bot-tab-label">Orders</span>
   </button>
   <button class="bot-tab" data-tab="wish">
     <span class="bot-tab-icon">🎯</span>
@@ -1943,20 +1614,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   }
 
   // ============================================================
-  // ORD_FROM_META — must be hoisted to the top of the IIFE.
-  // renderOrders runs as part of the FIRST renderAllNetWorth call
-  // (long before the ORDERS section is reached) and will TDZ-crash
-  // the whole script if any saved orders trigger the render path
-  // and ORD_FROM_META hasn't been initialized yet.
-  // ============================================================
-  const ORD_FROM_META = {
-    bank:   { name: 'Bank',   color: '#7DD3FC' },
-    stocks: { name: 'Stocks', color: '#6EE7B7' },
-    crypto: { name: 'Crypto', color: '#FBBF24' },
-    other:  { name: 'Other',  color: '#B794F4' }
-  };
-
-  // ============================================================
   // BOTTOM TABS — switch between Net Worth / Subs / Orders.
   // Active tab persisted in localStorage.
   // ============================================================
@@ -1974,16 +1631,16 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   }
   tabs.forEach(b => b.addEventListener('click', () => setActiveTab(b.dataset.tab)));
   const savedTab = storeGet(TAB_KEY);
-  setActiveTab(savedTab && ['net','subs','incoming','wish'].includes(savedTab) ? savedTab : 'net');
+  setActiveTab(savedTab && ['net','investing','subs','wish'].includes(savedTab) ? savedTab : 'net');
 
   // ============================================================
   // NET WORTH (copied from the main dashboard, verbatim logic)
   // ============================================================
   const NW_CATS = [
-    { key: 'bank',   listId: 'bankList',   totalId: 'bankTotal',   nameId: 'bankName',   amtId: 'bankAmount',   addId: 'bankAddBtn' },
-    { key: 'stocks', listId: 'stocksList', totalId: 'stocksTotal', nameId: 'stocksName', amtId: 'stocksAmount', addId: 'stocksAddBtn' },
-    { key: 'crypto', listId: 'cryptoList', totalId: 'cryptoTotal', nameId: 'cryptoName', amtId: 'cryptoAmount', addId: 'cryptoAddBtn' },
-    { key: 'other',  listId: 'otherList',  totalId: 'otherTotal',  nameId: 'otherName',  amtId: 'otherAmount',  addId: 'otherAddBtn' }
+    { key: 'bank',        listId: 'bankList',        totalId: 'bankTotal',        nameId: 'bankName',        amtId: 'bankAmount',        addId: 'bankAddBtn' },
+    { key: 'creditcards', listId: 'creditcardsList', totalId: 'creditcardsTotal', nameId: 'creditcardsName', amtId: 'creditcardsAmount', addId: 'creditcardsAddBtn', debt: true },
+    { key: 'stocks',      listId: 'stocksList',      totalId: 'stocksTotal',      nameId: 'stocksName',      amtId: 'stocksAmount',      addId: 'stocksAddBtn' },
+    { key: 'crypto',      listId: 'cryptoList',      totalId: 'cryptoTotal',      nameId: 'cryptoName',      amtId: 'cryptoAmount',      addId: 'cryptoAddBtn' }
   ];
   // Everything is USD-only now — no currency picker, no live exchange
   // rates. These stay defined (frozen at 1:1) so any old entries saved
@@ -2115,9 +1772,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     const sliceTotals = {};
     NW_CATS.forEach(cat => {
       const sub = renderNetWorthCategory(cat);
-      grand += sub;
+      grand += cat.debt ? -sub : sub;
       sliceTotals[cat.key] = sub;
-      if (sub > 0) breakdown.push(cat.key + ': ' + fmtMoney(sub));
+      if (sub > 0) breakdown.push(cat.key + ': ' + (cat.debt ? '-' : '') + fmtMoney(sub));
     });
     if (netWorthTotal) netWorthTotal.textContent = fmtMoney(grand);
     if (netWorthBreakdown) netWorthBreakdown.textContent = breakdown.join('  •  ');
@@ -2126,8 +1783,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     renderAllocationDonut(sliceTotals, grand);
     renderActivity();
     if (typeof renderWishlist === 'function') renderWishlist();
-    if (typeof renderOrders   === 'function') renderOrders();
-    if (typeof updateOrdPreview === 'function') updateOrdPreview();
   }
 
   // ============================================================
@@ -2194,11 +1849,11 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   // Each NW category gets a fixed color; subs get red because outflow.
   // ============================================================
   const NW_SLICE_META = {
-    bank:   { name: 'Bank',     color: '#7DD3FC' },
-    stocks: { name: 'Stocks',   color: '#6EE7B7' },
-    crypto: { name: 'Crypto',   color: '#FBBF24' },
-    other:  { name: 'Other',    color: '#B794F4' },
-    subs:   { name: 'Subs/yr',  color: '#FF8A8A' }
+    bank:        { name: 'Bank',         color: '#7DD3FC' },
+    creditcards: { name: 'Credit Cards', color: '#FF8A8A' },
+    stocks:      { name: 'Stocks',       color: '#6EE7B7' },
+    crypto:      { name: 'Crypto',       color: '#FBBF24' },
+    subs:        { name: 'Subs/yr',      color: '#FF8A8A' }
   };
   function donutArcPath(cx, cy, rOuter, rInner, startAngle, endAngle) {
     const x1o = cx + rOuter * Math.cos(startAngle);
@@ -2230,6 +1885,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     // "Bank" / "Stocks" slice each.
     const slices = [];
     NW_CATS.forEach(cat => {
+      if (cat.debt) return; // debt isn't part of the allocation pie
       const meta = NW_SLICE_META[cat.key] || { color: '#FFFFFF' };
       const items = storeGet('nw:' + cat.key) || [];
       items.forEach((it, i) => {
@@ -2614,7 +2270,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     if (!sel) return;
     const prev = sel.value;
     const accounts = (typeof listAllNwAccounts === 'function') ? listAllNwAccounts() : [];
-    const ICONS = { bank: '🏦', stocks: '📈', crypto: '🪙', other: '💼' };
+    const ICONS = { bank: '🏦', creditcards: '💳', stocks: '📈', crypto: '🪙' };
     if (!accounts.length) {
       sel.innerHTML = '<option value="">No accounts yet</option>';
       sel.disabled = true;
@@ -2688,7 +2344,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     ).join('');
     // Build From-account options from the live NW accounts
     const accounts = (typeof listAllNwAccounts === 'function') ? listAllNwAccounts() : [];
-    const ICONS = { bank: '🏦', stocks: '📈', crypto: '🪙', other: '💼' };
+    const ICONS = { bank: '🏦', creditcards: '💳', stocks: '📈', crypto: '🪙' };
     const currentFrom = (it.fromCat && it.fromAccount) ? (it.fromCat + '::' + it.fromAccount) : '';
     const fromOpts = '<option value="">No account linked</option>' + accounts.map(a => {
       const v = a.catKey + '::' + a.itemName;
@@ -2808,7 +2464,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     let g = 0;
     NW_CATS.forEach(cat => {
       const items = storeGet('nw:' + cat.key) || [];
-      items.forEach(it => { g += Number(it.amount) || 0; });
+      const sub = items.reduce((s, it) => s + (Number(it.amount) || 0), 0);
+      g += cat.debt ? -sub : sub;
     });
     return g;
   }
@@ -2937,39 +2594,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   });
 
   // ============================================================
-  // INCOMING ORDERS — full-spec: name, cost (CHF base), currency,
-  // fromCat, expectedDate, ts. Stored under 'incoming_orders'.
-  // (ORD_FROM_META is declared at the top of this IIFE — see the
-  // header — because renderOrders runs as part of the very first
-  // renderAllNetWorth, which fires *before* this section is reached.
-  // Declaring it here would put it in the TDZ for that first call
-  // and crash the whole script if any orders were already saved.)
+  // Build the flat list of every NW account across all categories,
+  // used by the subscription editor's "From account" dropdown.
   // ============================================================
-  function ordPctClass(pct) {
-    if (pct < 5)  return 'good';
-    if (pct < 25) return 'warn';
-    return 'bad';
-  }
-  function ordFmtArrival(iso) {
-    if (!iso) return null;
-    const isoSafe = /^\d{4}-\d{2}-\d{2}$/.test(iso) ? iso + 'T00:00' : iso;
-    const d = new Date(isoSafe);
-    if (isNaN(d)) return null;
-    const now = new Date();
-    const dayStart = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const diffDays = Math.round((dayStart - todayStart) / 86400000);
-    const dateLabel = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-    let cls = '', prefix = '';
-    if (diffDays < 0)        { cls = 'past';  prefix = 'late · '; }
-    else if (diffDays === 0) { cls = 'today'; prefix = 'today · '; }
-    else if (diffDays === 1) { cls = 'soon';  prefix = 'tomorrow · '; }
-    else if (diffDays <= 7)  { cls = 'soon';  prefix = 'in ' + diffDays + 'd · '; }
-    return { cls, label: prefix + dateLabel };
-  }
-  // Build the flat list of every NW account (across all 4 categories) so
-  // both the "From" dropdown on the add form AND the deduct chooser share
-  // the same source of truth.
   function listAllNwAccounts() {
     const out = [];
     NW_CATS.forEach(cat => {
@@ -2985,297 +2612,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     });
     return out;
   }
-  // Refill the order add-form's "From" select with the user's actual NW
-  // accounts, preserving the current selection if that account still exists.
-  function populateOrdFromSelect() {
-    const sel = document.getElementById('ordFromCat');
-    if (!sel) return;
-    const accounts = listAllNwAccounts();
-    const prev = sel.value;
-    const ICONS = { bank: '🏦', stocks: '📈', crypto: '🪙', other: '💼' };
-    if (!accounts.length) {
-      sel.innerHTML = '<option value="">No accounts yet</option>';
-      sel.disabled = true;
-      return;
-    }
-    sel.disabled = false;
-    sel.innerHTML = accounts.map(a => {
-      const value = a.catKey + '::' + a.itemName;
-      return '<option value="' + value + '">' + ICONS[a.catKey] + ' ' + escapeHtml(a.itemName) + '</option>';
-    }).join('');
-    if (prev && [...sel.options].some(o => o.value === prev)) sel.value = prev;
-  }
-  function renderOrders() {
-    const list = document.getElementById('ordList');
-    const empty = document.getElementById('ordEmpty');
-    const count = document.getElementById('ordCount');
-    if (!list) return;
-    // Refresh the "From" dropdown so newly added/renamed/deleted NW accounts show up.
-    populateOrdFromSelect();
-    const items = storeGet('incoming_orders') || [];
-    const grand = nwGrandCHF();
-    if (count) count.textContent = items.length + (items.length === 1 ? ' item' : ' items');
-    // Always clear before painting — earlier this re-rendered as an APPEND
-    // (so every NW change duplicated the cards). Now it's an idempotent paint.
-    list.innerHTML = '';
-    if (!items.length) {
-      if (empty) empty.classList.remove('hidden');
-      return;
-    }
-    if (empty) empty.classList.add('hidden');
-    // Sort: arrival date soonest first, undated last
-    items.slice().sort((a, b) => {
-      if (!a.date) return 1;
-      if (!b.date) return -1;
-      return a.date.localeCompare(b.date);
-    }).forEach(o => {
-      const cost = Number(o.amount) || 0;
-      const isDeducted = !!o.deductedAt;
-      // Use frozen pct once deducted; live pct otherwise.
-      let pct, pctText, pctCls;
-      if (isDeducted && typeof o.pctAtDeduction === 'number') {
-        pct = o.pctAtDeduction;
-        pctText = pct.toFixed(2) + '% of NW';
-        pctCls = ordPctClass(pct) + ' frozen';
-      } else if (grand > 0) {
-        pct = (cost / grand) * 100;
-        pctText = pct.toFixed(2) + '% of NW';
-        pctCls = ordPctClass(pct);
-      } else {
-        pct = null;
-        pctText = '— of NW';
-        pctCls = '';
-      }
-      const fromMeta = ORD_FROM_META[o.fromCat] || ORD_FROM_META.bank;
-      const fromAccountLabel = o.fromAccount ? escapeHtml(o.fromAccount) : fromMeta.name;
-      const arr = ordFmtArrival(o.date);
-      const arrHtml = arr
-        ? '<span class="ord-meta-pill date ' + arr.cls + '">' + arr.label + '</span>'
-        : '<span class="ord-meta-pill date">no arrival</span>';
-      const row = document.createElement('div');
-      row.className = 'ord-card cat-' + (o.fromCat || 'bank') + (isDeducted ? ' is-deducted' : '');
-      const footHtml = isDeducted
-        ? '<div class="ord-card-foot">'
-          +   '<span class="ord-deducted-pill">Deducted from ' + escapeHtml(o.deductedFrom && o.deductedFrom.name ? o.deductedFrom.name : fromAccountLabel) + '</span>'
-          +   '<button class="ord-deduct-undo" data-undo-id="' + o.id + '">Undo</button>'
-          + '</div>'
-        : '<div class="ord-card-foot">'
-          +   '<button class="ord-deduct-btn" data-deduct-id="' + o.id + '">− Deduct from net worth</button>'
-          + '</div>';
-      row.innerHTML =
-          '<div class="ord-card-h">'
-        +   '<div class="ord-card-name">' + escapeHtml(o.name) + '</div>'
-        +   '<div class="ord-card-amt">' + fmtMoney(cost) + '</div>'
-        +   '<button class="ord-card-x" data-id="' + o.id + '" aria-label="Remove">×</button>'
-        + '</div>'
-        + '<div class="ord-card-meta">'
-        +   '<span class="ord-meta-pill from">from · ' + fromAccountLabel + '</span>'
-        +   '<span class="ord-meta-pill pct ' + pctCls + '">' + pctText + '</span>'
-        +   arrHtml
-        + '</div>'
-        + footHtml;
-      list.appendChild(row);
-    });
-    // Wire up delete (×), deduct, and undo buttons.
-    list.querySelectorAll('.ord-card-x').forEach(b => {
-      b.addEventListener('click', () => {
-        const id = b.dataset.id;
-        const arr = (storeGet('incoming_orders') || []).filter(x => x.id !== id);
-        storeSet('incoming_orders', arr);
-        renderOrders();
-      });
-    });
-    list.querySelectorAll('.ord-deduct-btn').forEach(b => {
-      b.addEventListener('click', () => openDeductChooser(b.dataset.deductId, b.closest('.ord-card')));
-    });
-    list.querySelectorAll('.ord-deduct-undo').forEach(b => {
-      b.addEventListener('click', () => undoDeduct(b.dataset.undoId));
-    });
-  }
-  // ============================================================
-  // DEDUCT — open the inline chooser of NW accounts. Picking one
-  // subtracts the order amount from that account (in CHF), logs the
-  // activity, freezes the order's % at the moment of deduction, and
-  // marks the order as deducted (with no further % updates).
-  // ============================================================
-  function openDeductChooser(orderId, cardEl) {
-    if (!cardEl) return;
-    // Toggle: if a chooser already exists in this card, remove it.
-    const existing = cardEl.querySelector('.ord-deduct-chooser');
-    if (existing) { existing.remove(); return; }
-    const order = (storeGet('incoming_orders') || []).find(x => x.id === orderId);
-    if (!order) return;
-    const accounts = listAllNwAccounts();
-    if (!accounts.length) {
-      alert('Add at least one net worth account before deducting.');
-      return;
-    }
-    const ICONS = { bank: '🏦', stocks: '📈', crypto: '🪙', other: '💼' };
-    const cost = Number(order.amount) || 0;
-    const optsHtml = accounts.map(a => {
-      const insufficient = a.amountCHF < cost - 0.005;
-      const cls = 'ord-deduct-opt' + (insufficient ? ' insufficient' : '');
-      return '<button class="' + cls + '" '
-        + 'data-cat="' + a.catKey + '" '
-        + 'data-name="' + escapeHtml(a.itemName) + '" '
-        + (insufficient ? 'data-insuf="1" ' : '')
-        + '>'
-        + ICONS[a.catKey] + ' ' + escapeHtml(a.itemName)
-        + '<small>' + fmtMoney(a.amountCHF) + (insufficient ? ' · not enough' : ' available') + '</small>'
-        + '</button>';
-    }).join('');
-    const chooser = document.createElement('div');
-    chooser.className = 'ord-deduct-chooser';
-    chooser.innerHTML =
-        '<div class="ord-deduct-chooser-title">Deduct ' + fmtMoney(cost) + ' from…</div>'
-      + '<div class="ord-deduct-options">' + optsHtml + '</div>'
-      + '<button class="ord-deduct-cancel" type="button">cancel</button>';
-    cardEl.appendChild(chooser);
-    chooser.querySelectorAll('.ord-deduct-opt').forEach(b => {
-      b.addEventListener('click', () => {
-        if (b.dataset.insuf === '1') {
-          if (!confirm('That account doesn\'t have enough — deduct anyway? (it will go negative)')) return;
-        }
-        confirmDeduct(orderId, b.dataset.cat, b.dataset.name);
-      });
-    });
-    chooser.querySelector('.ord-deduct-cancel').addEventListener('click', () => chooser.remove());
-  }
-  function confirmDeduct(orderId, catKey, itemName) {
-    const orders = storeGet('incoming_orders') || [];
-    const oIdx = orders.findIndex(x => x.id === orderId);
-    if (oIdx < 0) return;
-    const order = orders[oIdx];
-    if (order.deductedAt) return; // already deducted
-    const items = storeGet('nw:' + catKey) || [];
-    const itemIdx = items.findIndex(it => String(it.name) === String(itemName));
-    if (itemIdx < 0) {
-      alert('That account no longer exists. Refresh the chooser.');
-      return;
-    }
-    const cost = Number(order.amount) || 0;
-    const grandBefore = nwGrandCHF();
-    const pctAtDeduction = grandBefore > 0 ? (cost / grandBefore) * 100 : 0;
-    // Subtract from the chosen NW account
-    items[itemIdx].amount = (Number(items[itemIdx].amount) || 0) - cost;
-    storeSet('nw:' + catKey, items);
-    logActivity(catKey, items[itemIdx].name, -cost, 'edit');
-    // Mark the order as deducted with frozen %
-    orders[oIdx] = {
-      ...order,
-      deductedAt: Date.now(),
-      pctAtDeduction: pctAtDeduction,
-      deductedFrom: { cat: catKey, name: items[itemIdx].name }
-    };
-    storeSet('incoming_orders', orders);
-    renderAllNetWorth();   // re-paints NW totals, donut, activity, and orders
-  }
-  function undoDeduct(orderId) {
-    const orders = storeGet('incoming_orders') || [];
-    const oIdx = orders.findIndex(x => x.id === orderId);
-    if (oIdx < 0) return;
-    const order = orders[oIdx];
-    if (!order.deductedAt || !order.deductedFrom) return;
-    const cost = Number(order.amount) || 0;
-    const items = storeGet('nw:' + order.deductedFrom.cat) || [];
-    const itemIdx = items.findIndex(it => String(it.name) === String(order.deductedFrom.name));
-    if (itemIdx >= 0) {
-      items[itemIdx].amount = (Number(items[itemIdx].amount) || 0) + cost;
-      storeSet('nw:' + order.deductedFrom.cat, items);
-      logActivity(order.deductedFrom.cat, items[itemIdx].name, cost, 'edit');
-    }
-    orders[oIdx] = { ...order, deductedAt: null, pctAtDeduction: null, deductedFrom: null };
-    storeSet('incoming_orders', orders);
-    renderAllNetWorth();
-  }
-  // Wire renderOrders into the global render so it stays in sync with NW changes
-  const _prevRenderAll = (typeof renderAllNetWorth === 'function') ? renderAllNetWorth : null;
-  // The "From" select uses values like "bank::star one". Split into parts.
-  function parseFromValue(v) {
-    const s = String(v || '');
-    const ix = s.indexOf('::');
-    if (ix < 0) return { cat: 'bank', name: '' };
-    return { cat: s.slice(0, ix), name: s.slice(ix + 2) };
-  }
-  // Live preview on the add card — updates as user types the cost
-  function updateOrdPreview() {
-    const costEl = document.getElementById('ordCost');
-    const ccyEl  = document.getElementById('ordCurrency');
-    const fromEl = document.getElementById('ordFromCat');
-    const prev   = document.getElementById('ordAddPreview');
-    if (!prev) return;
-    const aRaw = parseFloat(costEl && costEl.value);
-    if (!costEl || isNaN(aRaw) || aRaw <= 0) {
-      prev.textContent = 'Type a cost — preview will show what % of net worth it takes.';
-      prev.className = 'ord-add-preview';
-      return;
-    }
-    const ccy = ccyEl ? ccyEl.value : 'CHF';
-    const rate = exchangeRates[ccy] || 1;
-    const amountCHF = aRaw / rate;
-    const grand = nwGrandCHF();
-    const parsed = parseFromValue(fromEl ? fromEl.value : '');
-    const fromName = parsed.name || (ORD_FROM_META[parsed.cat] || ORD_FROM_META.bank).name;
-    if (grand > 0) {
-      const pct = (amountCHF / grand) * 100;
-      const cls = ordPctClass(pct);
-      prev.textContent = fmtMoney(amountCHF) + ' from ' + fromName + ' · ' + pct.toFixed(2) + '% of your ' + fmtMoney(grand) + ' net worth';
-      prev.className = 'ord-add-preview ' + (cls === 'good' ? '' : cls);
-    } else {
-      prev.textContent = fmtMoney(amountCHF) + ' from ' + fromName + ' · add net worth first to see %';
-      prev.className = 'ord-add-preview';
-    }
-  }
-  function doOrdAdd() {
-    try {
-      const nEl = document.getElementById('ordName');
-      const aEl = document.getElementById('ordCost');
-      const cEl = document.getElementById('ordCurrency');
-      const fEl = document.getElementById('ordFromCat');
-      const dEl = document.getElementById('ordArrival');
-      if (!nEl || !aEl) return;
-      const n = (nEl.value || '').trim();
-      const aRaw = parseFloat(aEl.value);
-      if (!n || isNaN(aRaw)) { nEl.focus(); return; }
-      const ccy = cEl ? cEl.value : 'CHF';
-      const rate = exchangeRates[ccy] || 1;
-      const amountCHF = aRaw / rate;
-      const parsed = parseFromValue(fEl ? fEl.value : '');
-      const arr = storeGet('incoming_orders') || [];
-      arr.push({
-        id: 'o_' + Date.now() + '_' + Math.floor(Math.random() * 9999),
-        name: n,
-        amount: amountCHF,
-        entered_amount: aRaw,
-        entered_currency: ccy,
-        fromCat: parsed.cat || 'bank',
-        fromAccount: parsed.name || null,    // the actual NW item the user picked
-        date: dEl && dEl.value ? dEl.value : null,
-        ts: Date.now(),
-        deductedAt: null,
-        pctAtDeduction: null,
-        deductedFrom: null
-      });
-      storeSet('incoming_orders', arr);
-      nEl.value = ''; aEl.value = '';
-      if (dEl) dEl.value = '';
-      updateOrdPreview();
-      renderOrders();
-    } catch (e) { console.error('ordAdd failed', e); }
-  }
-  window.__addOrder = doOrdAdd;
-  // Wire live-preview listeners
-  ['ordCost','ordCurrency','ordFromCat'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.addEventListener('input', updateOrdPreview);
-    if (el) el.addEventListener('change', updateOrdPreview);
-  });
-  ['ordName','ordCost'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.addEventListener('keydown', e => { if (e.key === 'Enter') doOrdAdd(); });
-  });
-  renderOrders();
-  updateOrdPreview();
 
   // ============================================================
   // FINANCE TICKER — rotates through upcoming subscription renewals
@@ -3412,7 +2748,7 @@ document.addEventListener('DOMContentLoaded', function () {
   if (typeof initCloudSync !== 'function') return;
   initCloudSync({
     appKey: 'finance',
-    syncedKeys: ['subs', 'wishlist', 'incoming_orders', 'nw:activity', 'nw:history'],
+    syncedKeys: ['subs', 'wishlist', 'nw:activity', 'nw:history'],
     syncedPrefixes: ['nw:'],
     onApplied: function () { window.dispatchEvent(new Event('storage')); }
   });
